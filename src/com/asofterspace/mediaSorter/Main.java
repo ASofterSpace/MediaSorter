@@ -12,6 +12,7 @@ import com.asofterspace.toolbox.Utils;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,8 @@ import java.util.Map;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.1(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019";
+	public final static String VERSION_NUMBER = "0.0.0.2(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 13. September 2019";
 
 	public static void main(String[] args) {
 
@@ -67,6 +68,7 @@ public class Main {
 		stats.add("Statistics");
 		stats.add("");
 		int filmcounter = 0;
+		Map<Integer, List<String>> amazingnessFilms = new HashMap<>();
 		Map<String, List<String>> yearlyFilms = new HashMap<>();
 		Map<String, List<String>> genreFilms = new HashMap<>();
 
@@ -95,6 +97,15 @@ public class Main {
 			}
 
 			for (int j = 0; j < filmContents.size(); j++) {
+				if (filmContents.get(j).equals("Amazingness:")) {
+					Integer amazingness = getAmazingness(filmContents.get(j+1));
+					List<String> thisAmazingnessFilms = amazingnessFilms.get(amazingness);
+					if (thisAmazingnessFilms == null) {
+						thisAmazingnessFilms = new ArrayList<>();
+						amazingnessFilms.put(amazingness, thisAmazingnessFilms);
+					}
+					thisAmazingnessFilms.add(filmname);
+				}
 				if (filmContents.get(j).equals("From:")) {
 					List<String> thisYearsFilms = yearlyFilms.get(filmContents.get(j+1));
 					if (thisYearsFilms == null) {
@@ -120,6 +131,24 @@ public class Main {
 		}
 		stats.add("We have " + filmcounter + " films.");
 		stats.add("");
+		stats.add("");
+		stats.add("Amazingness distribution:");
+		stats.add("");
+		Object[] amazingnessKeys = amazingnessFilms.keySet().toArray();
+		Arrays.sort(amazingnessKeys, Collections.reverseOrder());
+		for (Object key: amazingnessKeys) {
+			int intKey = (Integer) key;
+			if (intKey > 0) {
+				List<String> thisAmazingnessFilms = amazingnessFilms.get(key);
+				int amount = thisAmazingnessFilms.size();
+				StringBuilder line = new StringBuilder();
+				stats.add("Amazingness " + key + ": " + Utils.thingOrThings(amount, "film") + ":");
+				for (String film : thisAmazingnessFilms) {
+					stats.add("  " + film);
+				}
+				stats.add("");
+			}
+		}
 		stats.add("");
 		stats.add("Yearly distribution:");
 		stats.add("");
@@ -157,6 +186,16 @@ public class Main {
 		statsFile.saveContents(stats);
 
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
+	}
+
+	private static int getAmazingness(String str) {
+		int result = 0;
+		for (int i = 0; i < str.length(); i++) {
+			if (str.charAt(i) == 'X') {
+				result++;
+			}
+		}
+		return result;
 	}
 
 }
