@@ -6,7 +6,9 @@ package com.asofterspace.mediaSorter;
 
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.JSON;
+import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
+import com.asofterspace.toolbox.utils.StrUtils;
 import com.asofterspace.toolbox.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -43,12 +45,20 @@ public class Main {
 			}
 		}
 
-		// load config
-		ConfigFile config = new ConfigFile("settings", true);
+		ConfigFile config = null;
 
-		// create a default config file, if necessary
-		if (config.getAllContents().isEmpty()) {
-			config.setAllContents(new JSON("{\"filmpath\":\"\"}"));
+		try {
+			// load config
+			config = new ConfigFile("settings", true);
+
+			// create a default config file, if necessary
+			if (config.getAllContents().isEmpty()) {
+				config.setAllContents(new JSON("{\"filmpath\":\"\"}"));
+			}
+		} catch (JsonParseException e) {
+			System.err.println("Loading the settings failed:");
+			System.err.println(e);
+			System.exit(1);
 		}
 
 		// load media files
@@ -142,7 +152,7 @@ public class Main {
 				List<String> thisAmazingnessFilms = amazingnessFilms.get(key);
 				int amount = thisAmazingnessFilms.size();
 				StringBuilder line = new StringBuilder();
-				stats.add("Amazingness " + key + ": " + Utils.thingOrThings(amount, "film") + ":");
+				stats.add("Amazingness " + key + ": " + StrUtils.thingOrThings(amount, "film") + ":");
 				for (String film : thisAmazingnessFilms) {
 					stats.add("  " + film);
 				}
@@ -158,7 +168,7 @@ public class Main {
 			List<String> thisYearsFilms = yearlyFilms.get(key);
 			int amount = thisYearsFilms.size();
 			StringBuilder line = new StringBuilder();
-			stats.add(key + ": " + Utils.thingOrThings(amount, "film") + ":");
+			stats.add(key + ": " + StrUtils.thingOrThings(amount, "film") + ":");
 			for (String film : thisYearsFilms) {
 				stats.add("  " + film);
 			}
@@ -173,7 +183,7 @@ public class Main {
 			List<String> thisGenreFilms = genreFilms.get(key);
 			int amount = thisGenreFilms.size();
 			StringBuilder line = new StringBuilder();
-			stats.add(key + ": " + Utils.thingOrThings(amount, "film") + ":");
+			stats.add(key + ": " + StrUtils.thingOrThings(amount, "film") + ":");
 			for (String film : thisGenreFilms) {
 				stats.add("  " + film);
 			}
