@@ -9,9 +9,9 @@ import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
 import com.asofterspace.toolbox.utils.StrUtils;
+import com.asofterspace.toolbox.utils.TextEncoding;
 import com.asofterspace.toolbox.Utils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class Main {
 		}
 
 		SimpleFile vstpu = new SimpleFile(filmpath + "/VSTPU.stpu");
-		vstpu.useCharset(StandardCharsets.ISO_8859_1);
+		vstpu.setEncoding(TextEncoding.ISO_LATIN_1);
 		List<String> filmnames = vstpu.getContents();
 
 		// create statistics
@@ -91,7 +91,7 @@ public class Main {
 			}
 
 			SimpleFile film = new SimpleFile(filmpath + "/" + filmname + ".stpu");
-			film.useCharset(StandardCharsets.ISO_8859_1);
+			film.setEncoding(TextEncoding.ISO_LATIN_1);
 			List<String> filmContents = film.getContents();
 
 			filmname = filmContents.get(0);
@@ -192,7 +192,7 @@ public class Main {
 
 		// save statistics
 		SimpleFile statsFile = new SimpleFile(filmpath + "/Statistics.stpu");
-		statsFile.useCharset(StandardCharsets.ISO_8859_1);
+		statsFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		statsFile.saveContents(stats);
 
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
