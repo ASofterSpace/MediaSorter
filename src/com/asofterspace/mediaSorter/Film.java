@@ -1,0 +1,70 @@
+/**
+ * Unlicensed code created by A Softer Space, 2020
+ * www.asofterspace.com/licenses/unlicense.txt
+ */
+package com.asofterspace.mediaSorter;
+
+import java.util.List;
+import java.util.ArrayList;
+import com.asofterspace.toolbox.utils.StrUtils;
+
+
+public class Film {
+
+	private String title;
+
+	private Integer amazingness;
+
+	private String year;
+
+	private List<String> genres;
+
+	private String previewPic;
+
+
+	public Film(String title) {
+		this.title = title;
+		this.genres = new ArrayList<>();
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public Integer getAmazingness() {
+		return amazingness;
+	}
+
+	public void setAmazingness(Integer amazingness) {
+		this.amazingness = amazingness;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
+	}
+
+	public String getGenres() {
+		if (genres.size() < 1) {
+			return "???";
+		}
+		return StrUtils.join(genres, " / ");
+	}
+
+	public void addGenre(String genre) {
+		if (genre != null) {
+			this.genres.add(genre);
+		}
+	}
+
+	public String getPreviewPic() {
+		return previewPic;
+	}
+
+	public void setPreviewPic(String previewPic) {
+		this.previewPic = previewPic;
+	}
+}
