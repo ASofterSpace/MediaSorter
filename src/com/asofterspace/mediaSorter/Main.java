@@ -296,6 +296,8 @@ public class Main {
 
 		StringBuilder overview = new StringBuilder();
 		overview.append("<html>");
+
+		// add header
 		overview.append("<head>");
 		overview.append("<style>");
 		overview.append("div.filmcontainer {");
@@ -323,10 +325,31 @@ public class Main {
 		overview.append("	text-align: center;");
 		overview.append("	width: 200pt;");
 		overview.append("}");
+		overview.append("div.linkcontainer {");
+		overview.append("   padding: 10pt 0pt 25pt 0pt;");
+		overview.append("}");
+		overview.append("a {");
+		overview.append("	font-size: 200%;");
+		overview.append("	padding: 2pt 5pt 5pt 5pt;");
+		overview.append("	margin: 10pt;");
+		overview.append("	text-decoration: none;");
+		overview.append("	color: #000;");
+		overview.append("	box-shadow: 5px 5px 5px #FFF, -5px 5px 5px #D8D, -5px -5px 5px #A0A, 5px -5px 5px #FCF;");
+		overview.append("	background-color: white;");
+		overview.append("	border-radius: 10pt;");
+		overview.append("}");
 		overview.append("</style>");
 		overview.append("</head>");
-		overview.append("<body>");
 
+		// add links to other pages
+		overview.append("<body>");
+		overview.append("<div class='linkcontainer'>");
+		overview.append("<a href='overview.htm'>Sort Alphabetically</a>");
+		overview.append("<a href='overviewByAmazingness.htm'>Sort by Amazingness</a>");
+		overview.append("<a href='overviewByYear.htm'>Sort by Year</a>");
+		overview.append("</div>");
+
+		// add films
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
 		    String filmBracketLabel = filmBracket.getKey();
 		    List<Film> filmsInBracket = filmBracket.getValue();
@@ -346,9 +369,9 @@ public class Main {
 				overview.append(film.getAmazingnessShortText());
 				overview.append("</div>");
 				if (film.getPreviewPic().contains("'")) {
-					overview.append("<img src=\"" + film.getPreviewPic() + "\" />");
+					overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
 				} else {
-					overview.append("<img src='" + film.getPreviewPic() + "' />");
+					overview.append("<img src='" + film.getPreviewPic() + "'/>");
 				}
 				overview.append("</div>");
 			}
