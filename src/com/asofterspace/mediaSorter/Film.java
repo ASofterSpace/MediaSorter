@@ -35,6 +35,20 @@ public class Film {
 		return amazingness;
 	}
 
+	public String getAmazingnessShortText() {
+		if (amazingness == null) {
+			return "?";
+		}
+		return amazingness + "/10";
+	}
+
+	public String getAmazingnessLongText() {
+		if (amazingness == null) {
+			return "not yet graded";
+		}
+		return amazingness + " out of 10";
+	}
+
 	public void setAmazingness(Integer amazingness) {
 		this.amazingness = amazingness;
 	}

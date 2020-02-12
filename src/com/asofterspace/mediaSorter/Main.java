@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.Map;
 
 
@@ -220,39 +221,60 @@ public class Main {
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
 
 		// create overviews
-		saveFilmsAsOverview(films, filmpath + "/overview.htm");
+		Map<String, List<Film>> filmBrackets = new HashMap<>();
+		filmBrackets.put("All Films", films);
+		saveFilmsAsOverview(filmBrackets, filmpath + "/overview.htm");
 
-		Collections.sort(films, new Comparator<Film>() {
-			public int compare(Film a, Film b) {
-				Integer aComp = a.getAmazingness();
-				if (aComp == null) {
-					aComp = 0;
+		filmBrackets = new TreeMap<>(new Comparator<String>() {
+			public int compare(String a, String b) {
+				// order "not yet graded" towards the end
+				if ((a.charAt(0) == 'n') && (b.charAt(0) == 'n')) {
+					return 0;
 				}
-				Integer bComp = b.getAmazingness();
-				if (bComp == null) {
-					bComp = 0;
+				if (a.charAt(0) == 'n') {
+					return 1;
 				}
-				return bComp - aComp;
+				if (b.charAt(0) == 'n') {
+					return -1;
+				}
+				// append leading 0 if we have e.g. "1 out of 10", but not if we have "10 out of 10"
+				if (a.charAt(1) == ' ') {
+					a = "0" + a;
+				}
+				if (b.charAt(1) == ' ') {
+					b = "0" + b;
+				}
+				return b.compareTo(a);
 			}
 		});
 
-		saveFilmsAsOverview(films, filmpath + "/overviewByAmazingness.htm");
+		for (Film film : films) {
+			List<Film> curList = filmBrackets.get(film.getAmazingnessLongText());
+			if (curList == null) {
+				curList = new ArrayList<>();
+				filmBrackets.put(film.getAmazingnessLongText(), curList);
+			}
+			curList.add(film);
+		}
 
-		Collections.sort(films, new Comparator<Film>() {
-			public int compare(Film a, Film b) {
-				String aComp = a.getYear();
-				if (aComp == null) {
-					aComp = "0000";
-				}
-				String bComp = b.getYear();
-				if (bComp == null) {
-					bComp = "0000";
-				}
-				return bComp.compareTo(aComp);
+		saveFilmsAsOverview(filmBrackets, filmpath + "/overviewByAmazingness.htm");
+
+		filmBrackets = new TreeMap<>(new Comparator<String>() {
+			public int compare(String a, String b) {
+				return b.compareTo(a);
 			}
 		});
 
-		saveFilmsAsOverview(films, filmpath + "/overviewByYear.htm");
+		for (Film film : films) {
+			List<Film> curList = filmBrackets.get(film.getYear());
+			if (curList == null) {
+				curList = new ArrayList<>();
+				filmBrackets.put(film.getYear(), curList);
+			}
+			curList.add(film);
+		}
+
+		saveFilmsAsOverview(filmBrackets, filmpath + "/overviewByYear.htm");
 
 		System.out.println("Saved overview HTML files!");
 	}
@@ -270,7 +292,7 @@ public class Main {
 		return result;
 	}
 
-	private static void saveFilmsAsOverview(List<Film> films, String filename) {
+	private static void saveFilmsAsOverview(Map<String, List<Film>> films, String filename) {
 
 		StringBuilder overview = new StringBuilder();
 		overview.append("<html>");
@@ -279,12 +301,19 @@ public class Main {
 		overview.append("div.filmcontainer {");
 		overview.append("	display: flex;");
 		overview.append("	flex-wrap: wrap;");
+		overview.append("	justify-content: center;");
+		overview.append("	padding-top: 25pt;");
+		overview.append("	padding-bottom: 75pt;");
 		overview.append("}");
 		overview.append("div.film {");
 		overview.append("	padding: 4pt;");
 		overview.append("}");
 		overview.append("img {");
 		overview.append("	width: 200pt;");
+		overview.append("}");
+		overview.append("div.bracketTitle {");
+		overview.append("	text-align: center;");
+		overview.append("	font-size: 400%;");
 		overview.append("}");
 		overview.append("div.filmtitle {");
 		overview.append("	text-align: center;");
@@ -297,19 +326,31 @@ public class Main {
 		overview.append("</style>");
 		overview.append("</head>");
 		overview.append("<body>");
-		overview.append("<div class='filmcontainer'>");
-		for (Film film : films) {
-			overview.append("<div class='film'>");
-			overview.append("<div class='filmtitle'>" + film.getTitle() + "</div>");
-			if (film.getAmazingness() == null) {
-				overview.append("<div class='extrainfo'>" + film.getYear() + " &loz; ?</div>");
-			} else {
-				overview.append("<div class='extrainfo'>" + film.getYear() + " &loz; " + film.getAmazingness() + "/10</div>");
-			}
-			if (film.getPreviewPic().contains("'")) {
-				overview.append("<img src=\"" + film.getPreviewPic() + "\" />");
-			} else {
-				overview.append("<img src='" + film.getPreviewPic() + "' />");
+
+		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
+		    String filmBracketLabel = filmBracket.getKey();
+		    List<Film> filmsInBracket = filmBracket.getValue();
+			overview.append("<div class='bracketTitle'>");
+			overview.append(filmBracketLabel);
+			overview.append("</div>");
+
+			overview.append("<div class='filmcontainer'>");
+			for (Film film : filmsInBracket) {
+				overview.append("<div class='film'>");
+				overview.append("<div class='filmtitle'>");
+				overview.append(film.getTitle());
+				overview.append("</div>");
+				overview.append("<div class='extrainfo'>");
+				overview.append(film.getYear());
+				overview.append(" &loz; ");
+				overview.append(film.getAmazingnessShortText());
+				overview.append("</div>");
+				if (film.getPreviewPic().contains("'")) {
+					overview.append("<img src=\"" + film.getPreviewPic() + "\" />");
+				} else {
+					overview.append("<img src='" + film.getPreviewPic() + "' />");
+				}
+				overview.append("</div>");
 			}
 			overview.append("</div>");
 		}
