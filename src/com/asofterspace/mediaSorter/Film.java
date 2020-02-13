@@ -61,11 +61,15 @@ public class Film {
 		this.year = year;
 	}
 
-	public String getGenres() {
+	public String getGenreText() {
 		if (genres.size() < 1) {
 			return "???";
 		}
 		return StrUtils.join(genres, " / ");
+	}
+
+	public List<String> getGenres() {
+		return genres;
 	}
 
 	public void addGenre(String genre) {

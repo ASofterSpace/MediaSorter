@@ -33,6 +33,13 @@ public class Main {
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
+	private final static String OVERVIEW = "overview";
+	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
+	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
+	private final static String OVERVIEW_BY_GENRES = "overviewByGenres";
+
+	private final static String NO_GENRE_SELECTED = "No Genre Selected Yet";
+
 
 	public static void main(String[] args) {
 
@@ -220,11 +227,12 @@ public class Main {
 
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
 
-		// create overviews
+		// create all films overview
 		Map<String, List<Film>> filmBrackets = new HashMap<>();
 		filmBrackets.put("All Films", films);
-		saveFilmsAsOverview(filmBrackets, filmpath + "/overview.htm");
+		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW + ".htm");
 
+		// create overview sorted by amazingness
 		filmBrackets = new TreeMap<>(new Comparator<String>() {
 			public int compare(String a, String b) {
 				// order "not yet graded" towards the end
@@ -257,8 +265,9 @@ public class Main {
 			curList.add(film);
 		}
 
-		saveFilmsAsOverview(filmBrackets, filmpath + "/overviewByAmazingness.htm");
+		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_AMAZINGNESS + ".htm");
 
+		// create overview sorted by year
 		filmBrackets = new TreeMap<>(new Comparator<String>() {
 			public int compare(String a, String b) {
 				return b.compareTo(a);
@@ -274,7 +283,55 @@ public class Main {
 			curList.add(film);
 		}
 
-		saveFilmsAsOverview(filmBrackets, filmpath + "/overviewByYear.htm");
+		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_YEAR + ".htm");
+
+		// create overviews for each genre
+		Map<String, List<Film>> genreMap = new HashMap<>();
+		List<String> genres = new ArrayList<>();
+
+		for (Film film : films) {
+			for (String genre : film.getGenres()) {
+				if ("???".equals(genre)) {
+					genre = null;
+				}
+				if (!genres.contains(genre)) {
+					genres.add(genre);
+					genreMap.put(genre, new ArrayList<Film>());
+				}
+				genreMap.get(genre).add(film);
+			}
+		}
+
+		Collections.sort(genres, new Comparator<String>() {
+			public int compare(String a, String b) {
+				// order "no genre selected yet" towards the end
+				if ((a == null) && (b == null)) {
+					return 0;
+				}
+				if (a == null) {
+					return 1;
+				}
+				if (b == null) {
+					return -1;
+				}
+				return genreMap.get(b).size() - genreMap.get(a).size();
+			}
+		});
+
+		int i = 0;
+
+		for (String genre : genres) {
+			List<Film> filmsOfThisGenre = genreMap.get(genre);
+			filmBrackets = new HashMap<>();
+			if (genre == null) {
+				genre = NO_GENRE_SELECTED;
+			}
+			filmBrackets.put(genre, filmsOfThisGenre);
+			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_GENRES + i + ".htm");
+			i++;
+		}
+
+		saveGenreOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm");
 
 		System.out.println("Saved overview HTML files!");
 	}
@@ -292,7 +349,7 @@ public class Main {
 		return result;
 	}
 
-	private static void saveFilmsAsOverview(Map<String, List<Film>> films, String filename) {
+	private static StringBuilder getHtmlTop() {
 
 		StringBuilder overview = new StringBuilder();
 		overview.append("<html>");
@@ -326,6 +383,7 @@ public class Main {
 		overview.append("	width: 200pt;");
 		overview.append("}");
 		overview.append("div.linkcontainer {");
+		overview.append("	text-align: center;");
 		overview.append("   padding: 10pt 0pt 25pt 0pt;");
 		overview.append("}");
 		overview.append("a {");
@@ -344,10 +402,47 @@ public class Main {
 		// add links to other pages
 		overview.append("<body>");
 		overview.append("<div class='linkcontainer'>");
-		overview.append("<a href='overview.htm'>Sort Alphabetically</a>");
-		overview.append("<a href='overviewByAmazingness.htm'>Sort by Amazingness</a>");
-		overview.append("<a href='overviewByYear.htm'>Sort by Year</a>");
+		overview.append("<a href='" + OVERVIEW + ".htm'>All Films</a>");
+		overview.append("<a href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>By Amazingness</a>");
+		overview.append("<a href='" + OVERVIEW_BY_YEAR + ".htm'>By Year</a>");
+		overview.append("<a href='" + OVERVIEW_BY_GENRES + ".htm'>Select Genre</a>");
 		overview.append("</div>");
+
+		return overview;
+	}
+
+	private static void saveGenreOverview(List<String> genres, String filename) {
+
+		StringBuilder overview = getHtmlTop();
+
+		overview.append("<div class='bracketTitle'>");
+		overview.append("Select a Genre:");
+		overview.append("</div>");
+
+		// add genres
+		int i = 0;
+		for (String genre : genres) {
+			if (genre == null) {
+				genre = NO_GENRE_SELECTED;
+			}
+			overview.append("<div class='linkcontainer'>");
+			overview.append("<a href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + genre + "</a>");
+			overview.append("</div>");
+
+			i++;
+		}
+		overview.append("</body>");
+		overview.append("</html>");
+
+		// save overview
+		SimpleFile overviewFile = new SimpleFile(filename);
+		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
+		overviewFile.saveContent(overview);
+	}
+
+	private static void saveFilmsAsOverview(Map<String, List<Film>> films, String filename) {
+
+		StringBuilder overview = getHtmlTop();
 
 		// add films
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
@@ -377,7 +472,6 @@ public class Main {
 			}
 			overview.append("</div>");
 		}
-		overview.append("</div>");
 		overview.append("</body>");
 		overview.append("</html>");
 
