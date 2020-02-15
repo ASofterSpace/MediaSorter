@@ -9,6 +9,7 @@ import java.util.Comparator;
 
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.JSON;
+import com.asofterspace.toolbox.io.HTML;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
 import com.asofterspace.toolbox.io.File;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Set;
 import java.util.Map;
 
 
@@ -39,9 +41,12 @@ public class Main {
 	private final static String OVERVIEW_BY_GENRES = "overviewByGenres";
 	private final static String OVERVIEW_FILM = "overviewForFilm";
 
-	private final static String NO_GENRE_SELECTED = "No Genre Selected Yet";
+	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 
 
+	// TODO :: add links for amazingness and for genres directly from the media page
+	// TODO :: make links purple
+	// TODO :: add actual file locations
 	public static void main(String[] args) {
 
 		// let the Utils know in what program it is being used
@@ -153,6 +158,9 @@ public class Main {
 				if (filmContents.get(j).equals("Genre:")) {
 					String[] genres = filmContents.get(j+1).split(" / ");
 					for (String curGenre : genres) {
+						if ("???".equals(curGenre)) {
+							curGenre = null;
+						}
 						List<String> thisGenreFilms = genreFilms.get(curGenre);
 						if (thisGenreFilms == null) {
 							thisGenreFilms = new ArrayList<>();
@@ -223,9 +231,11 @@ public class Main {
 		stats.add("");
 		stats.add("Genre distribution:");
 		stats.add("");
-		Object[] genreKeys = genreFilms.keySet().toArray();
-		Arrays.sort(genreKeys);
-		for (Object key: genreKeys) {
+		Set<String> genreKeySet = genreFilms.keySet();
+		genreKeySet.remove(null);
+		List<String> genreKeys = new ArrayList<String>(genreKeySet);
+		Collections.sort(genreKeys);
+		for (Object key : genreKeys) {
 			List<String> thisGenreFilms = genreFilms.get(key);
 			int amount = thisGenreFilms.size();
 			StringBuilder line = new StringBuilder();
@@ -252,13 +262,13 @@ public class Main {
 		filmBrackets = new TreeMap<>(new Comparator<String>() {
 			public int compare(String a, String b) {
 				// order "not yet graded" towards the end
-				if ((a.charAt(0) == 'n') && (b.charAt(0) == 'n')) {
+				if ((a.charAt(0) == 'N') && (b.charAt(0) == 'N')) {
 					return 0;
 				}
-				if (a.charAt(0) == 'n') {
+				if (a.charAt(0) == 'N') {
 					return 1;
 				}
-				if (b.charAt(0) == 'n') {
+				if (b.charAt(0) == 'N') {
 					return -1;
 				}
 				// append leading 0 if we have e.g. "1 out of 10", but not if we have "10 out of 10"
@@ -273,10 +283,10 @@ public class Main {
 		});
 
 		for (Film film : films) {
-			List<Film> curList = filmBrackets.get(film.getAmazingnessLongText());
+			List<Film> curList = filmBrackets.get(film.getAmazingnessBracket());
 			if (curList == null) {
 				curList = new ArrayList<>();
-				filmBrackets.put(film.getAmazingnessLongText(), curList);
+				filmBrackets.put(film.getAmazingnessBracket(), curList);
 			}
 			curList.add(film);
 		}
@@ -307,9 +317,6 @@ public class Main {
 
 		for (Film film : films) {
 			for (String genre : film.getGenres()) {
-				if ("???".equals(genre)) {
-					genre = null;
-				}
 				if (!genres.contains(genre)) {
 					genres.add(genre);
 					genreMap.put(genre, new ArrayList<Film>());
@@ -318,21 +325,14 @@ public class Main {
 			}
 		}
 
+		genres.remove(null);
 		Collections.sort(genres, new Comparator<String>() {
 			public int compare(String a, String b) {
-				// order "no genre selected yet" towards the end
-				if ((a == null) && (b == null)) {
-					return 0;
-				}
-				if (a == null) {
-					return 1;
-				}
-				if (b == null) {
-					return -1;
-				}
 				return genreMap.get(b).size() - genreMap.get(a).size();
 			}
 		});
+		// order "no genre selected yet" towards the end
+		genres.add(null);
 
 		int i = 0;
 
@@ -442,7 +442,7 @@ public class Main {
 		overview.append("}");
 		overview.append("a {");
 		overview.append("	text-decoration: none;");
-		overview.append("	color: #000;");
+		overview.append("	color: #A0A;");
 		overview.append("}");
 		overview.append("</style>");
 		overview.append("</head>");
@@ -474,7 +474,7 @@ public class Main {
 				genre = NO_GENRE_SELECTED;
 			}
 			overview.append("<div class='linkcontainer'>");
-			overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + genre + "</a>");
+			overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + HTML.escapeHTMLstr(genre) + "</a>");
 			overview.append("</div>");
 
 			i++;
@@ -496,9 +496,9 @@ public class Main {
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
 		    String filmBracketLabel = filmBracket.getKey();
 		    List<Film> filmsInBracket = filmBracket.getValue();
-			overview.append("<a name='" + filmBracketLabel + "' />");
+			overview.append("<a name='" + filmBracketLabel + "'></a>");
 			overview.append("<div class='bracketTitle'>");
-			overview.append(filmBracketLabel);
+			overview.append(HTML.escapeHTMLstr(filmBracketLabel));
 			overview.append("</div>");
 
 			appendFilmsToOverview(overview, filmsInBracket);
@@ -518,12 +518,12 @@ public class Main {
 		for (Film film : filmsInBracket) {
 			overview.append("<div class='film'>");
 			overview.append("<div class='filmtitle'>");
-			overview.append(film.getTitle());
+			overview.append(HTML.escapeHTMLstr(film.getTitle()));
 			overview.append("</div>");
 			overview.append("<div class='extrainfo'>");
-			overview.append(film.getYear());
+			overview.append(HTML.escapeHTMLstr(film.getYear()));
 			overview.append(" &loz; ");
-			overview.append(film.getAmazingnessShortText());
+			overview.append(HTML.escapeHTMLstr(film.getAmazingnessShortText()));
 			overview.append("</div>");
 			overview.append("<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm'>");
 			if (film.getPreviewPic().contains("'")) {
@@ -542,7 +542,7 @@ public class Main {
 		StringBuilder overview = getHtmlTop();
 
 		overview.append("<div class='bracketTitle'>");
-		overview.append(film.getTitle());
+		overview.append(HTML.escapeHTMLstr(film.getTitle()));
 		overview.append("</div>");
 
 		overview.append("<div class='sidebysidecontainer'>");
@@ -558,19 +558,19 @@ public class Main {
 		overview.append("<div class='sidebyside right'>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Amazingness: " + film.getAmazingnessLongText());
+		overview.append("Amazingness: <a href='" + OVERVIEW_BY_AMAZINGNESS + ".htm#" + HTML.escapeHTMLstr(film.getAmazingnessBracket()) + "'>" + HTML.escapeHTMLstr(film.getAmazingnessLongText()) + "</a>");
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Review: " + film.getReview());
+		overview.append("Review: " + HTML.escapeHTMLstr(film.getReview()));
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("From: <a href='" + OVERVIEW_BY_YEAR + ".htm#" + film.getYear() + "'>" + film.getYear() + "</a>");
+		overview.append("From: <a href='" + OVERVIEW_BY_YEAR + ".htm#" + HTML.escapeHTMLstr(film.getYear()) + "'>" + HTML.escapeHTMLstr(film.getYear()) + "</a>");
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Genres: " + film.getGenreText());
+		overview.append("Genres: " + HTML.escapeHTMLstr(film.getGenreText()));
 		overview.append("</div>");
 
 		overview.append("</div>");
@@ -585,10 +585,6 @@ public class Main {
 			appendFilmsToOverview(overview, film.getRelatedMovies());
 		}
 
-/*
-		TODO ::
-		the actual location of the file
-*/
 		overview.append("</body>");
 		overview.append("</html>");
 

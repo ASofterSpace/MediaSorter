@@ -69,6 +69,13 @@ public class Film {
 		return amazingness + " out of 10";
 	}
 
+	public String getAmazingnessBracket() {
+		if (amazingness == null) {
+			return "Not Yet Graded";
+		}
+		return amazingness + " out of 10";
+	}
+
 	public void setAmazingness(Integer amazingness) {
 		this.amazingness = amazingness;
 	}
@@ -82,8 +89,8 @@ public class Film {
 	}
 
 	public String getGenreText() {
-		if (genres.size() < 1) {
-			return "???";
+		if ((genres.size() < 1) || (genres.get(0) == null)) {
+			return "No genre selected yet";
 		}
 		return StrUtils.join(genres, " / ");
 	}
@@ -93,9 +100,7 @@ public class Film {
 	}
 
 	public void addGenre(String genre) {
-		if (genre != null) {
-			this.genres.add(genre);
-		}
+		this.genres.add(genre);
 	}
 
 	public String getPreviewPic() {
@@ -107,7 +112,7 @@ public class Film {
 	}
 
 	public String getReview() {
-		if ((review == null) || "Not seen yet!".equals(review)) {
+		if ((review == null) || review.startsWith("Not seen yet")) {
 			return "Not yet reviewed";
 		}
 		return review;
