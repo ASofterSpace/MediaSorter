@@ -42,8 +42,6 @@ public class Main {
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 
 
-	// TODO :: add links for amazingness and for genres directly from the media page
-	// TODO :: make links purple
 	// TODO :: add actual file locations
 	public static void main(String[] args) {
 
@@ -169,7 +167,7 @@ public class Main {
 					}
 				}
 				if (filmContents.get(j).equals("Related movies:")) {
-					for (int movieNum = j +1; movieNum < filmContents.size(); movieNum++) {
+					for (int movieNum = j + 1; movieNum < filmContents.size(); movieNum++) {
 						String relatedMovie = filmContents.get(movieNum);
 						if (!relatedMovie.startsWith("%[\\Desktop\\Filme\\")) {
 							break;
@@ -177,6 +175,36 @@ public class Main {
 						relatedMovie = relatedMovie.substring("%[\\Desktop\\Filme\\".length());
 						relatedMovie = relatedMovie.substring(0, relatedMovie.length() - 1);
 						curFilm.addRelatedMovieName(relatedMovie);
+					}
+				}
+				if (filmContents.get(j).equals("Archive:")) {
+					FilmLocation curFilmLocation = null;
+					for (int arcLineNum = j + 1; arcLineNum < filmContents.size(); arcLineNum++) {
+						String arcLine = filmContents.get(arcLineNum);
+						if ("Location: movies main".equals(arcLine)) {
+							continue;
+						}
+						if (arcLine.startsWith("Location:")) {
+							System.err.println(filmfilename + " is not located in movies main!");
+							continue;
+						}
+						if ("Review:".equals(arcLine)) {
+							break;
+						}
+						if (arcLine.startsWith("Language:")) {
+							curFilmLocation = new FilmLocation(curFilm);
+							curFilm.addFilmLocation(curFilmLocation);
+							curFilmLocation.parseLanguages(arcLine.substring("Language:".length() + 1));
+						}
+						if (arcLine.startsWith("Subtitles:")) {
+							curFilmLocation.parseSubtitleLanguages(arcLine.substring("Subtitles:".length() + 1));
+						}
+						if (arcLine.startsWith("%[")) {
+							curFilmLocation.parseLocation(arcLine);
+						}
+						if ("".equals(arcLine)) {
+							curFilmLocation = null;
+						}
 					}
 				}
 			}
@@ -572,6 +600,10 @@ public class Main {
 
 		overview.append("<div class='filminfo'>");
 		overview.append("Genres: " + film.getGenreHTML(filmpath, genreToNumberMap));
+		overview.append("</div>");
+
+		overview.append("<div class='filminfo'>");
+		overview.append(film.getLocationHTML(filmpath));
 		overview.append("</div>");
 
 		overview.append("</div>");

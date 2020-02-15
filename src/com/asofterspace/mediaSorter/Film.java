@@ -35,6 +35,8 @@ public class Film {
 
 	private List<Film> relatedMovies;
 
+	private List<FilmLocation> filmLocations;
+
 
 	public Film(String title, String filename, int number) {
 		this.title = title;
@@ -43,6 +45,7 @@ public class Film {
 		this.genres = new ArrayList<>();
 		this.relatedMovieNames = new ArrayList<>();
 		this.relatedMovies = new ArrayList<>();
+		this.filmLocations = new ArrayList<>();
 	}
 
 	public String getTitle() {
@@ -164,5 +167,28 @@ public class Film {
 
 	public List<Film> getRelatedMovies() {
 		return relatedMovies;
+	}
+
+	public void addFilmLocation(FilmLocation filmLocation) {
+		filmLocations.add(filmLocation);
+	}
+
+	public String getLocationHTML(String filmpath) {
+		if (filmLocations.size() < 1) {
+			System.err.println("We do not actually have " + title + "!");
+			return "";
+		}
+
+		StringBuilder result = new StringBuilder();
+		for (FilmLocation loc : filmLocations) {
+			result.append("<br>");
+			result.append("Language: " + HTML.escapeHTMLstr(loc.getLanguageText()));
+			result.append("<br>");
+			result.append("Subtitles: " + HTML.escapeHTMLstr(loc.getSubtitleText()));
+			result.append("<br>");
+			result.append("Location: " + HTML.escapeHTMLstr(loc.getLocationText()));
+			result.append("<br>");
+		}
+		return result.toString();
 	}
 }
