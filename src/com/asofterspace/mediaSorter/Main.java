@@ -326,6 +326,10 @@ public class Main {
 		});
 
 		for (Film film : films) {
+			if (film.getYear() == null) {
+				System.err.println(film.getTitle() + " does not have a year assigned!");
+				continue;
+			}
 			List<Film> curList = filmBrackets.get(film.getYear());
 			if (curList == null) {
 				curList = new ArrayList<>();
