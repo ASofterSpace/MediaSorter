@@ -11,7 +11,11 @@ import com.asofterspace.toolbox.utils.StrUtils;
 
 public class Film {
 
+	// the human-readable title of the film
 	private String title;
+
+	// the filename that the movie index file had
+	private String filename;
 
 	private int number;
 
@@ -23,11 +27,20 @@ public class Film {
 
 	private String previewPic;
 
+	private String review;
 
-	public Film(String title, int number) {
+	private List<String> relatedMovieNames;
+
+	private List<Film> relatedMovies;
+
+
+	public Film(String title, String filename, int number) {
 		this.title = title;
+		this.filename = filename;
 		this.number = number;
 		this.genres = new ArrayList<>();
+		this.relatedMovieNames = new ArrayList<>();
+		this.relatedMovies = new ArrayList<>();
 	}
 
 	public String getTitle() {
@@ -91,5 +104,40 @@ public class Film {
 
 	public void setPreviewPic(String previewPic) {
 		this.previewPic = previewPic;
+	}
+
+	public String getReview() {
+		if ((review == null) || "Not seen yet!".equals(review)) {
+			return "Not yet reviewed";
+		}
+		return review;
+	}
+
+	public void setReview(String review) {
+		this.review = review;
+	}
+
+	public void addRelatedMovieName(String name) {
+		relatedMovieNames.add(name);
+	}
+
+	public void resolveRelatedMovies(List<Film> films) {
+		for (String name : relatedMovieNames) {
+			boolean foundIt = false;
+			for (Film film : films) {
+				if (name.equals(film.filename)) {
+					relatedMovies.add(film);
+					foundIt = true;
+					break;
+				}
+			}
+			if (!foundIt) {
+				System.err.println("For " + title + " could not find related movie " + name + "!");
+			}
+		}
+	}
+
+	public List<Film> getRelatedMovies() {
+		return relatedMovies;
 	}
 }

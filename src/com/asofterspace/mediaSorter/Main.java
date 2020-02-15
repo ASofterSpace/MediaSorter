@@ -104,7 +104,7 @@ public class Main {
 
 			String filmfilename = filmnames.get(i);
 
-			if (filmfilename.equals("")) {
+			if ("".equals(filmfilename)) {
 				break;
 			}
 
@@ -124,7 +124,7 @@ public class Main {
 				continue;
 			}
 
-			Film curFilm = new Film(filmname, filmcounter);
+			Film curFilm = new Film(filmname, filmfilename, filmcounter);
 			films.add(curFilm);
 
 			for (int j = 0; j < filmContents.size(); j++) {
@@ -139,6 +139,7 @@ public class Main {
 						thisAmazingnessFilms.add(filmname);
 					}
 					curFilm.setAmazingness(amazingness);
+					curFilm.setReview(filmContents.get(j+2));
 				}
 				if (filmContents.get(j).equals("From:")) {
 					List<String> thisYearsFilms = yearlyFilms.get(filmContents.get(j+1));
@@ -161,6 +162,17 @@ public class Main {
 						curFilm.addGenre(curGenre);
 					}
 				}
+				if (filmContents.get(j).equals("Related movies:")) {
+					for (int movieNum = j +1; movieNum < filmContents.size(); movieNum++) {
+						String relatedMovie = filmContents.get(movieNum);
+						if (!relatedMovie.startsWith("%[\\Desktop\\Filme\\")) {
+							break;
+						}
+						relatedMovie = relatedMovie.substring("%[\\Desktop\\Filme\\".length());
+						relatedMovie = relatedMovie.substring(0, relatedMovie.length() - 1);
+						curFilm.addRelatedMovieName(relatedMovie);
+					}
+				}
 			}
 
 			for (String ending : TRY_PIC_ENDINGS) {
@@ -172,6 +184,9 @@ public class Main {
 			}
 
 			filmcounter++;
+		}
+		for (Film film : films) {
+			film.resolveRelatedMovies(films);
 		}
 		stats.add("We have " + filmcounter + " films.");
 		stats.add("");
@@ -378,7 +393,8 @@ public class Main {
 		overview.append("	width: 200pt;");
 		overview.append("}");
 		overview.append("img.bigpic {");
-		overview.append("	width: 400pt;");
+		overview.append("	width: 300pt;");
+		overview.append("	padding-right: 10pt;");
 		overview.append("}");
 		overview.append("div.bracketTitle {");
 		overview.append("	text-align: center;");
@@ -392,11 +408,31 @@ public class Main {
 		overview.append("	text-align: center;");
 		overview.append("	width: 200pt;");
 		overview.append("}");
+		overview.append("div.filminfo {");
+		overview.append("	font-size: 200%;");
+		overview.append("	padding-bottom: 8pt;");
+		overview.append("}");
 		overview.append("div.linkcontainer {");
 		overview.append("	text-align: center;");
 		overview.append("   padding: 10pt 0pt 25pt 0pt;");
 		overview.append("}");
-		overview.append("a {");
+		overview.append("div.sidebysidecontainer {");
+		overview.append("   display: flex;");
+		overview.append("   padding-top: 20pt;");
+		overview.append("}");/*
+		overview.append("div.sidebyside {");
+		overview.append("   vertical-align: top;");
+		overview.append("}");*/
+		overview.append("div.left {");
+		overview.append("   width: 310pt;");
+		overview.append("}");
+		overview.append("div.right {");
+		overview.append("   width: 100%;");
+		overview.append("}");
+		overview.append("div.center {");
+		overview.append("   text-align: center;");
+		overview.append("}");
+		overview.append("a.toplink {");
 		overview.append("	font-size: 200%;");
 		overview.append("	padding: 2pt 5pt 5pt 5pt;");
 		overview.append("	margin: 10pt;");
@@ -412,10 +448,10 @@ public class Main {
 		// add links to other pages
 		overview.append("<body>");
 		overview.append("<div class='linkcontainer'>");
-		overview.append("<a href='" + OVERVIEW + ".htm'>All Films</a>");
-		overview.append("<a href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>By Amazingness</a>");
-		overview.append("<a href='" + OVERVIEW_BY_YEAR + ".htm'>By Year</a>");
-		overview.append("<a href='" + OVERVIEW_BY_GENRES + ".htm'>Select Genre</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW + ".htm'>All Films</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>By Amazingness</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_YEAR + ".htm'>By Year</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + ".htm'>Select Genre</a>");
 		overview.append("</div>");
 
 		return overview;
@@ -436,7 +472,7 @@ public class Main {
 				genre = NO_GENRE_SELECTED;
 			}
 			overview.append("<div class='linkcontainer'>");
-			overview.append("<a href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + genre + "</a>");
+			overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + genre + "</a>");
 			overview.append("</div>");
 
 			i++;
@@ -462,27 +498,7 @@ public class Main {
 			overview.append(filmBracketLabel);
 			overview.append("</div>");
 
-			overview.append("<div class='filmcontainer'>");
-			for (Film film : filmsInBracket) {
-				overview.append("<div class='film'>");
-				overview.append("<div class='filmtitle'>");
-				overview.append(film.getTitle());
-				overview.append("</div>");
-				overview.append("<div class='extrainfo'>");
-				overview.append(film.getYear());
-				overview.append(" &loz; ");
-				overview.append(film.getAmazingnessShortText());
-				overview.append("</div>");
-				overview.append("<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm' target='_blank'>");
-				if (film.getPreviewPic().contains("'")) {
-					overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
-				} else {
-					overview.append("<img src='" + film.getPreviewPic() + "'/>");
-				}
-				overview.append("</a>");
-				overview.append("</div>");
-			}
-			overview.append("</div>");
+			appendFilmsToOverview(overview, filmsInBracket);
 		}
 		overview.append("</body>");
 		overview.append("</html>");
@@ -493,6 +509,31 @@ public class Main {
 		overviewFile.saveContent(overview);
 	}
 
+	private static void appendFilmsToOverview(StringBuilder overview, List<Film> filmsInBracket) {
+
+		overview.append("<div class='filmcontainer'>");
+		for (Film film : filmsInBracket) {
+			overview.append("<div class='film'>");
+			overview.append("<div class='filmtitle'>");
+			overview.append(film.getTitle());
+			overview.append("</div>");
+			overview.append("<div class='extrainfo'>");
+			overview.append(film.getYear());
+			overview.append(" &loz; ");
+			overview.append(film.getAmazingnessShortText());
+			overview.append("</div>");
+			overview.append("<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm'>");
+			if (film.getPreviewPic().contains("'")) {
+				overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
+			} else {
+				overview.append("<img src='" + film.getPreviewPic() + "'/>");
+			}
+			overview.append("</a>");
+			overview.append("</div>");
+		}
+		overview.append("</div>");
+	}
+
 	private static void saveFilmFile(Film film, String filename) {
 
 		StringBuilder overview = getHtmlTop();
@@ -501,26 +542,49 @@ public class Main {
 		overview.append(film.getTitle());
 		overview.append("</div>");
 
+		overview.append("<div class='sidebysidecontainer'>");
+
+		overview.append("<div class='sidebyside left'>");
 		if (film.getPreviewPic().contains("'")) {
 			overview.append("<img class='bigpic' src=\"" + film.getPreviewPic() + "\"/>");
 		} else {
 			overview.append("<img class='bigpic' src='" + film.getPreviewPic() + "'/>");
 		}
+		overview.append("</div>");
 
-		overview.append("<div class='filmInfo'>");
+		overview.append("<div class='sidebyside right'>");
+
+		overview.append("<div class='filminfo'>");
 		overview.append("Amazingness: " + film.getAmazingnessLongText());
 		overview.append("</div>");
 
-		overview.append("<div class='filmInfo'>");
+		overview.append("<div class='filminfo'>");
+		overview.append("Review: " + film.getReview());
+		overview.append("</div>");
+
+		overview.append("<div class='filminfo'>");
 		overview.append("From: " + film.getYear());
 		overview.append("</div>");
 
+		overview.append("<div class='filminfo'>");
+		overview.append("Genres: " + film.getGenreText());
+		overview.append("</div>");
+
+		overview.append("</div>");
+
+		overview.append("</div>");
+
+		if (film.getRelatedMovies().size() > 0) {
+			overview.append("<div class='filminfo center'>");
+			overview.append("Related Movies:");
+			overview.append("</div>");
+
+			appendFilmsToOverview(overview, film.getRelatedMovies());
+		}
+
 /*
 		TODO ::
-		review,
-		a bigger version of the picture,
-		the actual location of the file,
-		other films of the series
+		the actual location of the file
 */
 		overview.append("</body>");
 		overview.append("</html>");
