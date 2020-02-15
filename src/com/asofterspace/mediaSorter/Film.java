@@ -64,7 +64,7 @@ public class Film {
 
 	public String getAmazingnessLongText() {
 		if (amazingness == null) {
-			return "not yet graded";
+			return "Not yet graded";
 		}
 		return amazingness + " out of 10";
 	}

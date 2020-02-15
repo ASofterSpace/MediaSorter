@@ -436,11 +436,13 @@ public class Main {
 		overview.append("	font-size: 200%;");
 		overview.append("	padding: 2pt 5pt 5pt 5pt;");
 		overview.append("	margin: 10pt;");
-		overview.append("	text-decoration: none;");
-		overview.append("	color: #000;");
 		overview.append("	box-shadow: 5px 5px 5px #FFF, -5px 5px 5px #D8D, -5px -5px 5px #A0A, 5px -5px 5px #FCF;");
 		overview.append("	background-color: white;");
 		overview.append("	border-radius: 10pt;");
+		overview.append("}");
+		overview.append("a {");
+		overview.append("	text-decoration: none;");
+		overview.append("	color: #000;");
 		overview.append("}");
 		overview.append("</style>");
 		overview.append("</head>");
@@ -494,6 +496,7 @@ public class Main {
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
 		    String filmBracketLabel = filmBracket.getKey();
 		    List<Film> filmsInBracket = filmBracket.getValue();
+			overview.append("<a name='" + filmBracketLabel + "' />");
 			overview.append("<div class='bracketTitle'>");
 			overview.append(filmBracketLabel);
 			overview.append("</div>");
@@ -563,7 +566,7 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("From: " + film.getYear());
+		overview.append("From: <a href='" + OVERVIEW_BY_YEAR + ".htm#" + film.getYear() + "'>" + film.getYear() + "</a>");
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
