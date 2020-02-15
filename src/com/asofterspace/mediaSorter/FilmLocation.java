@@ -4,17 +4,24 @@
  */
 package com.asofterspace.mediaSorter;
 
+import com.asofterspace.toolbox.io.HTML;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class FilmLocation {
 
 	private Film film;
 
 	private String languageStr;
 	private String subtitleLangStr;
-	private String locationStr;
+	private List<String> locationStrs;
 
 
 	public FilmLocation(Film film) {
 		this.film = film;
+		this.locationStrs = new ArrayList<>();
 	}
 
 	public void parseLanguages(String line) {
@@ -32,10 +39,9 @@ public class FilmLocation {
 	}
 
 	public void parseLocation(String line) {
-		if (locationStr != null) {
-			System.err.println(film.getTitle() + " contains several location declarations!");
-		}
-		locationStr = line;
+		line = line.substring(10);
+		line = line.substring(0, line.length() - 1);
+		locationStrs.add(line);
 	}
 
 	public String getLanguageText() {
@@ -46,8 +52,15 @@ public class FilmLocation {
 		return subtitleLangStr;
 	}
 
-	public String getLocationText() {
-		return locationStr;
+	public String getLocationHTMLstr() {
+		StringBuilder result = new StringBuilder();
+		String sep = "";
+		for (String locationStr : locationStrs) {
+			result.append(sep);
+			sep = "<br>";
+			result.append(HTML.escapeHTMLstr(locationStr));
+		}
+		return result.toString();
 	}
 
 }
