@@ -37,6 +37,7 @@ public class Main {
 	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
 	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
 	private final static String OVERVIEW_BY_GENRES = "overviewByGenres";
+	private final static String OVERVIEW_FILM = "overviewForFilm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Selected Yet";
 
@@ -123,7 +124,7 @@ public class Main {
 				continue;
 			}
 
-			Film curFilm = new Film(filmname);
+			Film curFilm = new Film(filmname, filmcounter);
 			films.add(curFilm);
 
 			for (int j = 0; j < filmContents.size(); j++) {
@@ -334,6 +335,12 @@ public class Main {
 		saveGenreOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm");
 
 		System.out.println("Saved overview HTML files!");
+
+		for (Film film : films) {
+			saveFilmFile(film, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
+		}
+
+		System.out.println("Saved inidividual film files!");
 	}
 
 	private static Integer getAmazingness(String str) {
@@ -369,6 +376,9 @@ public class Main {
 		overview.append("}");
 		overview.append("img {");
 		overview.append("	width: 200pt;");
+		overview.append("}");
+		overview.append("img.bigpic {");
+		overview.append("	width: 400pt;");
 		overview.append("}");
 		overview.append("div.bracketTitle {");
 		overview.append("	text-align: center;");
@@ -463,11 +473,13 @@ public class Main {
 				overview.append(" &loz; ");
 				overview.append(film.getAmazingnessShortText());
 				overview.append("</div>");
+				overview.append("<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm' target='_blank'>");
 				if (film.getPreviewPic().contains("'")) {
 					overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
 				} else {
 					overview.append("<img src='" + film.getPreviewPic() + "'/>");
 				}
+				overview.append("</a>");
 				overview.append("</div>");
 			}
 			overview.append("</div>");
@@ -476,6 +488,44 @@ public class Main {
 		overview.append("</html>");
 
 		// save overview
+		SimpleFile overviewFile = new SimpleFile(filename);
+		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
+		overviewFile.saveContent(overview);
+	}
+
+	private static void saveFilmFile(Film film, String filename) {
+
+		StringBuilder overview = getHtmlTop();
+
+		overview.append("<div class='bracketTitle'>");
+		overview.append(film.getTitle());
+		overview.append("</div>");
+
+		if (film.getPreviewPic().contains("'")) {
+			overview.append("<img class='bigpic' src=\"" + film.getPreviewPic() + "\"/>");
+		} else {
+			overview.append("<img class='bigpic' src='" + film.getPreviewPic() + "'/>");
+		}
+
+		overview.append("<div class='filmInfo'>");
+		overview.append("Amazingness: " + film.getAmazingnessLongText());
+		overview.append("</div>");
+
+		overview.append("<div class='filmInfo'>");
+		overview.append("From: " + film.getYear());
+		overview.append("</div>");
+
+/*
+		TODO ::
+		review,
+		a bigger version of the picture,
+		the actual location of the file,
+		other films of the series
+*/
+		overview.append("</body>");
+		overview.append("</html>");
+
+		// save the file
 		SimpleFile overviewFile = new SimpleFile(filename);
 		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		overviewFile.saveContent(overview);

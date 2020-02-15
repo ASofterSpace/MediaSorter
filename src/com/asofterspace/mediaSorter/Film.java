@@ -13,6 +13,8 @@ public class Film {
 
 	private String title;
 
+	private int number;
+
 	private Integer amazingness;
 
 	private String year;
@@ -22,13 +24,18 @@ public class Film {
 	private String previewPic;
 
 
-	public Film(String title) {
+	public Film(String title, int number) {
 		this.title = title;
+		this.number = number;
 		this.genres = new ArrayList<>();
 	}
 
 	public String getTitle() {
 		return title;
+	}
+
+	public int getNumber() {
+		return number;
 	}
 
 	public Integer getAmazingness() {
