@@ -4,15 +4,12 @@
  */
 package com.asofterspace.mediaSorter;
 
-import java.util.Collections;
-import java.util.Comparator;
-
 import com.asofterspace.toolbox.configuration.ConfigFile;
-import com.asofterspace.toolbox.io.JSON;
+import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
+import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
-import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.utils.StrUtils;
 import com.asofterspace.toolbox.utils.TextEncoding;
 import com.asofterspace.toolbox.Utils;
@@ -20,11 +17,12 @@ import com.asofterspace.toolbox.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 
 public class Main {
@@ -38,7 +36,7 @@ public class Main {
 	private final static String OVERVIEW = "overview";
 	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
 	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
-	private final static String OVERVIEW_BY_GENRES = "overviewByGenres";
+	public final static String OVERVIEW_BY_GENRES = "overviewByGenres";
 	private final static String OVERVIEW_FILM = "overviewForFilm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
@@ -336,7 +334,10 @@ public class Main {
 
 		int i = 0;
 
+		Map<String, Integer> genreToNumberMap = new HashMap<>();
+
 		for (String genre : genres) {
+			genreToNumberMap.put(genre, i);
 			List<Film> filmsOfThisGenre = genreMap.get(genre);
 			filmBrackets = new HashMap<>();
 			if (genre == null) {
@@ -352,7 +353,7 @@ public class Main {
 		System.out.println("Saved overview HTML files!");
 
 		for (Film film : films) {
-			saveFilmFile(film, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
+			saveFilmFile(film, genreToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
 		}
 
 		System.out.println("Saved inidividual film files!");
@@ -494,8 +495,8 @@ public class Main {
 
 		// add films
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
-		    String filmBracketLabel = filmBracket.getKey();
-		    List<Film> filmsInBracket = filmBracket.getValue();
+			String filmBracketLabel = filmBracket.getKey();
+			List<Film> filmsInBracket = filmBracket.getValue();
 			overview.append("<a name='" + filmBracketLabel + "'></a>");
 			overview.append("<div class='bracketTitle'>");
 			overview.append(HTML.escapeHTMLstr(filmBracketLabel));
@@ -537,7 +538,7 @@ public class Main {
 		overview.append("</div>");
 	}
 
-	private static void saveFilmFile(Film film, String filename) {
+	private static void saveFilmFile(Film film, Map<String, Integer> genreToNumberMap, String filmpath, String filename) {
 
 		StringBuilder overview = getHtmlTop();
 
@@ -570,7 +571,7 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Genres: " + HTML.escapeHTMLstr(film.getGenreText()));
+		overview.append("Genres: " + film.getGenreHTML(filmpath, genreToNumberMap));
 		overview.append("</div>");
 
 		overview.append("</div>");

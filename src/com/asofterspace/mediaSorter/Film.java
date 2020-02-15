@@ -4,9 +4,11 @@
  */
 package com.asofterspace.mediaSorter;
 
-import java.util.List;
+import com.asofterspace.toolbox.io.HTML;
+
 import java.util.ArrayList;
-import com.asofterspace.toolbox.utils.StrUtils;
+import java.util.List;
+import java.util.Map;
 
 
 public class Film {
@@ -88,11 +90,29 @@ public class Film {
 		this.year = year;
 	}
 
-	public String getGenreText() {
+	private String toGenreLink(String genreStr, String key, String filmpath, Map<String, Integer> genreToNumberMap) {
+		return "<a href='" + filmpath + "/" + Main.OVERVIEW_BY_GENRES +
+				genreToNumberMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(genreStr) + "</a>";
+	}
+
+	public String getGenreHTML(String filmpath, Map<String, Integer> genreToNumberMap) {
 		if ((genres.size() < 1) || (genres.get(0) == null)) {
-			return "No genre selected yet";
+			return toGenreLink("No genre selected yet", null, filmpath, genreToNumberMap);
 		}
-		return StrUtils.join(genres, " / ");
+
+		StringBuilder result = new StringBuilder();
+		boolean firstElem = true;
+		for (String genre : genres) {
+			if (genre != null) {
+				if (firstElem) {
+					firstElem = false;
+				} else {
+					result.append(" / ");
+				}
+				result.append(toGenreLink(genre, genre, filmpath, genreToNumberMap));
+			}
+		}
+		return result.toString();
 	}
 
 	public List<String> getGenres() {
