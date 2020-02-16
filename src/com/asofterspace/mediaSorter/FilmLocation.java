@@ -53,12 +53,17 @@ public class FilmLocation {
 	}
 
 	public String getLocationHTMLstr() {
+		if (locationStrs.size() == 1) {
+			return "Location: " + HTML.escapeHTMLstr(locationStrs.get(0));
+		}
 		StringBuilder result = new StringBuilder();
 		String sep = "";
+		int i = 1;
 		for (String locationStr : locationStrs) {
 			result.append(sep);
 			sep = "<br>";
-			result.append(HTML.escapeHTMLstr(locationStr));
+			result.append(HTML.escapeHTMLstr("Location #" + i + ": " + locationStr));
+			i++;
 		}
 		return result.toString();
 	}

@@ -186,7 +186,7 @@ public class Film {
 			result.append("<br>");
 			result.append("Subtitles: " + HTML.escapeHTMLstr(loc.getSubtitleText()));
 			result.append("<br>");
-			result.append("Location: " + loc.getLocationHTMLstr());
+			result.append(loc.getLocationHTMLstr());
 			result.append("<br>");
 		}
 		return result.toString();
