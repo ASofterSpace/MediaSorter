@@ -354,6 +354,7 @@ public class Main {
 			}
 		}
 
+		boolean genresContainedNull = genres.contains(null);
 		genres.remove(null);
 		Collections.sort(genres, new Comparator<String>() {
 			public int compare(String a, String b) {
@@ -361,7 +362,9 @@ public class Main {
 			}
 		});
 		// order "no genre selected yet" towards the end
-		genres.add(null);
+		if (genresContainedNull) {
+			genres.add(null);
+		}
 
 		int i = 0;
 
