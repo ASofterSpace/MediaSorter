@@ -397,7 +397,7 @@ public class Main {
 			saveFilmFile(film, genreToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
 		}
 
-		System.out.println("Saved inidividual film files!");
+		System.out.println("Saved individual film files!");
 	}
 
 	private static Integer getAmazingness(String str) {
