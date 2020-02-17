@@ -51,6 +51,9 @@ public class FilmLocation {
 	public void parseLocation(String line) {
 		line = line.substring(10);
 		line = line.substring(0, line.length() - 1);
+		if (locationStrs.size() == 1) {
+			System.out.println("Btw., " + film.getTitle() + " contains several locations");
+		}
 		locationStrs.add(line);
 	}
 
