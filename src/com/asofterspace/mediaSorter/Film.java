@@ -186,6 +186,14 @@ public class Film {
 			result.append("<br>");
 			result.append("Subtitles: " + HTML.escapeHTMLstr(loc.getSubtitleText()));
 			result.append("<br>");
+			if (loc.hasQualityNotice()) {
+				result.append("Quality: " + HTML.escapeHTMLstr(loc.getQualityNoticeText()));
+				result.append("<br>");
+			}
+			if (loc.hasEdition()) {
+				result.append("Edition: " + HTML.escapeHTMLstr(loc.getEditionText()));
+				result.append("<br>");
+			}
 			result.append(loc.getLocationHTMLstr());
 			result.append("<br>");
 		}

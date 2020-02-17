@@ -198,6 +198,13 @@ public class Main {
 						if (arcLine.startsWith("Subtitles:")) {
 							curFilmLocation.parseSubtitleLanguages(arcLine.substring("Subtitles:".length() + 1));
 						}
+						if (arcLine.startsWith("Quality:")) {
+							curFilmLocation.parseQuality(arcLine.substring("Quality:".length() + 1));
+							System.out.println("There is a quality notice for " + curFilm.getTitle() + "!");
+						}
+						if (arcLine.startsWith("Edition:")) {
+							curFilmLocation.parseEdition(arcLine.substring("Edition:".length() + 1));
+						}
 						if (arcLine.startsWith("%[")) {
 							curFilmLocation.parseLocation(arcLine);
 						}
@@ -435,13 +442,10 @@ public class Main {
 		overview.append("	text-align: center;");
 		overview.append("	font-size: 400%;");
 		overview.append("}");
-		overview.append("div.filmtitle {");
+		overview.append("div.filmtitle, div.extrainfo {");
 		overview.append("	text-align: center;");
 		overview.append("	width: 200pt;");
-		overview.append("}");
-		overview.append("div.extrainfo {");
-		overview.append("	text-align: center;");
-		overview.append("	width: 200pt;");
+		overview.append("	font-weight: bold;");
 		overview.append("}");
 		overview.append("div.filminfo {");
 		overview.append("	font-size: 200%;");
