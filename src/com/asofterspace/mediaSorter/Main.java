@@ -609,11 +609,11 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Genres: " + film.getGenreHTML(filmpath, genreToNumberMap));
+		overview.append("Genres: " + film.getGenreHTML(genreToNumberMap));
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append(film.getLocationHTML(filmpath));
+		overview.append(film.getLocationHTML());
 		overview.append("</div>");
 
 		overview.append("</div>");

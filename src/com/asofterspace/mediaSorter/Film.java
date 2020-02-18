@@ -93,14 +93,14 @@ public class Film {
 		this.year = year;
 	}
 
-	private String toGenreLink(String genreStr, String key, String filmpath, Map<String, Integer> genreToNumberMap) {
-		return "<a href='" + filmpath + "/" + Main.OVERVIEW_BY_GENRES +
+	private String toGenreLink(String genreStr, String key, Map<String, Integer> genreToNumberMap) {
+		return "<a href='" + Main.OVERVIEW_BY_GENRES +
 				genreToNumberMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(genreStr) + "</a>";
 	}
 
-	public String getGenreHTML(String filmpath, Map<String, Integer> genreToNumberMap) {
+	public String getGenreHTML(Map<String, Integer> genreToNumberMap) {
 		if ((genres.size() < 1) || (genres.get(0) == null)) {
-			return toGenreLink("No genre selected yet", null, filmpath, genreToNumberMap);
+			return toGenreLink("No genre selected yet", null, genreToNumberMap);
 		}
 
 		StringBuilder result = new StringBuilder();
@@ -112,7 +112,7 @@ public class Film {
 				} else {
 					result.append(" / ");
 				}
-				result.append(toGenreLink(genre, genre, filmpath, genreToNumberMap));
+				result.append(toGenreLink(genre, genre, genreToNumberMap));
 			}
 		}
 		return result.toString();
@@ -173,7 +173,7 @@ public class Film {
 		filmLocations.add(filmLocation);
 	}
 
-	public String getLocationHTML(String filmpath) {
+	public String getLocationHTML() {
 		if (filmLocations.size() < 1) {
 			System.err.println("We do not actually have " + title + "!");
 			return "";
