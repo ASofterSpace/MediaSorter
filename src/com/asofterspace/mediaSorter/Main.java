@@ -205,6 +205,9 @@ public class Main {
 						if (arcLine.startsWith("Edition:")) {
 							curFilmLocation.parseEdition(arcLine.substring("Edition:".length() + 1));
 						}
+						if (arcLine.startsWith("Note:")) {
+							curFilmLocation.parseNote(arcLine.substring("Note:".length() + 1));
+						}
 						if (arcLine.startsWith("%[")) {
 							curFilmLocation.parseLocation(arcLine);
 						}
@@ -456,17 +459,17 @@ public class Main {
 		overview.append("   padding: 10pt 0pt 25pt 0pt;");
 		overview.append("}");
 		overview.append("div.sidebysidecontainer {");
-		overview.append("   display: flex;");
 		overview.append("   padding-top: 20pt;");
-		overview.append("}");/*
+		overview.append("}");
 		overview.append("div.sidebyside {");
 		overview.append("   vertical-align: top;");
-		overview.append("}");*/
+		overview.append("}");
 		overview.append("div.left {");
-		overview.append("   width: 310pt;");
+		overview.append("   position: absolute;");
 		overview.append("}");
 		overview.append("div.right {");
-		overview.append("   width: 100%;");
+		overview.append("   padding-left: 310pt;");
+		overview.append("   min-height: 420pt;");
 		overview.append("}");
 		overview.append("div.center {");
 		overview.append("   text-align: center;");

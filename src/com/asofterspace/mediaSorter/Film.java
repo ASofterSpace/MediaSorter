@@ -194,6 +194,10 @@ public class Film {
 				result.append("Edition: " + HTML.escapeHTMLstr(loc.getEditionText()));
 				result.append("<br>");
 			}
+			if (loc.hasNote()) {
+				result.append("Note: " + HTML.escapeHTMLstr(loc.getNoteText()));
+				result.append("<br>");
+			}
 			result.append(loc.getLocationHTMLstr());
 			result.append("<br>");
 		}

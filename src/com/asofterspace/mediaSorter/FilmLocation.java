@@ -18,6 +18,7 @@ public class FilmLocation {
 	private String subtitleLangStr;
 	private String qualityStr;
 	private String editionStr;
+	private String noteStr;
 	private List<String> locationStrs;
 
 
@@ -41,11 +42,15 @@ public class FilmLocation {
 	}
 
 	public void parseQuality(String line) {
-		qualityStr = line;
+		qualityStr = line.trim();
 	}
 
 	public void parseEdition(String line) {
-		editionStr = line;
+		editionStr = line.trim();
+	}
+
+	public void parseNote(String line) {
+		noteStr = line.trim();
 	}
 
 	public void parseLocation(String line) {
@@ -79,6 +84,14 @@ public class FilmLocation {
 
 	public String getEditionText() {
 		return editionStr;
+	}
+
+	public boolean hasNote() {
+		return noteStr != null;
+	}
+
+	public String getNoteText() {
+		return noteStr;
 	}
 
 	public String getLocationHTMLstr() {
