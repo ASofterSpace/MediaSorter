@@ -69,7 +69,7 @@ public class Main {
 
 			// create a default config file, if necessary
 			if (config.getAllContents().isEmpty()) {
-				config.setAllContents(new JSON("{\"filmpath\":\"\"}"));
+				config.setAllContents(new JSON("{\"filmpath\":\"\", \"filmfileorigin\":\"\"}"));
 			}
 		} catch (JsonParseException e) {
 			System.err.println("Loading the settings failed:");
@@ -79,9 +79,17 @@ public class Main {
 
 		// load media files
 		String filmpath = config.getValue("filmpath");
+		String filmfileorigin = config.getValue("filmfileorigin");
 
 		if ((filmpath == null) || (filmpath.equals(""))) {
-			System.err.println("Sorry, no filmpath specified in the configuration!");
+			System.err.println("Sorry, no filmpath specified in the configuration.\n" +
+				"From this path, the input data is loaded.");
+			System.exit(1);
+		}
+
+		if ((filmfileorigin == null) || (filmfileorigin.equals(""))) {
+			System.err.println("Sorry, no filmfileorigin specified in the configuration.\n" +
+				"At this path, the actual files to be opened in an external player are located.");
 			System.exit(1);
 		}
 
@@ -191,7 +199,7 @@ public class Main {
 							break;
 						}
 						if (arcLine.startsWith("Language:")) {
-							curFilmLocation = new FilmLocation(curFilm);
+							curFilmLocation = new FilmLocation(curFilm, filmfileorigin);
 							curFilm.addFilmLocation(curFilmLocation);
 							curFilmLocation.parseLanguages(arcLine.substring("Language:".length() + 1));
 						}

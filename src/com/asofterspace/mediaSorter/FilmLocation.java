@@ -13,6 +13,7 @@ import java.util.List;
 public class FilmLocation {
 
 	private Film film;
+	private String fileLocationOrigin;
 
 	private String languageStr;
 	private String subtitleLangStr;
@@ -22,8 +23,9 @@ public class FilmLocation {
 	private List<String> locationStrs;
 
 
-	public FilmLocation(Film film) {
+	public FilmLocation(Film film, String fileLocationOrigin) {
 		this.film = film;
+		this.fileLocationOrigin = fileLocationOrigin;
 		this.locationStrs = new ArrayList<>();
 	}
 
@@ -96,7 +98,7 @@ public class FilmLocation {
 
 	public String getLocationHTMLstr() {
 		if (locationStrs.size() == 1) {
-			return "Location: " + HTML.escapeHTMLstr(locationStrs.get(0));
+			return "Location: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(locationStrs.get(0)) + "'>" + HTML.escapeHTMLstr(locationStrs.get(0)) + "</a>";
 		}
 		StringBuilder result = new StringBuilder();
 		String sep = "";
