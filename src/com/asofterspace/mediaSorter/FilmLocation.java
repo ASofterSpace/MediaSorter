@@ -97,6 +97,19 @@ public class FilmLocation {
 	}
 
 	public String getLocationHTMLstr() {
+		String result = getLocationHTMLmainStr();
+		String container = locationStrs.get(0);
+		if (container.contains("\\")) {
+			container = container.substring(0, container.lastIndexOf("\\"));
+		}
+		if (container.contains("/")) {
+			container = container.substring(0, container.lastIndexOf("/"));
+		}
+		result += "<br>Contained in: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(container) + "'>" + HTML.escapeHTMLstr(container) + "</a>";
+		return result;
+	}
+
+	private String getLocationHTMLmainStr() {
 		if (locationStrs.size() == 1) {
 			return "Location: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(locationStrs.get(0)) + "'>" + HTML.escapeHTMLstr(locationStrs.get(0)) + "</a>";
 		}
