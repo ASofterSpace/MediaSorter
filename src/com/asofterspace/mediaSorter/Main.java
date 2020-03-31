@@ -359,7 +359,7 @@ public class Main {
 		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_YEAR + ".htm");
 
 		// create overviews for each genre
-		Map<String, List<Film>> genreMap = new HashMap<>();
+		final Map<String, List<Film>> genreMap = new HashMap<>();
 		List<String> genres = new ArrayList<>();
 
 		for (Film film : films) {
