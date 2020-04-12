@@ -119,7 +119,7 @@ public class FilmLocation {
 		for (String locationStr : locationStrs) {
 			result.append(sep);
 			sep = "<br>";
-			result.append(HTML.escapeHTMLstr("Location #" + i + ": " + locationStr));
+			result.append("Location #" + i + ": <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(locationStr) + "'>" + HTML.escapeHTMLstr(locationStr) + "</a>");
 			i++;
 		}
 		return result.toString();
