@@ -16,6 +16,7 @@ public class FilmLocation {
 	private String fileLocationOrigin;
 
 	private String languageStr;
+	private List<String> languages;
 	private String subtitleLangStr;
 	private String qualityStr;
 	private String editionStr;
@@ -27,6 +28,7 @@ public class FilmLocation {
 		this.film = film;
 		this.fileLocationOrigin = fileLocationOrigin;
 		this.locationStrs = new ArrayList<>();
+		this.languages = new ArrayList<>();
 	}
 
 	public void parseLanguages(String line) {
@@ -34,6 +36,21 @@ public class FilmLocation {
 			System.err.println(film.getTitle() + " contains several language declarations!");
 		}
 		languageStr = line;
+
+		// extract distinct languages... we first split on |, then take the first for each,
+		// so e.g. English and French | German will turn into {English, German} (as the
+		// first each is the "main" one)
+		String[] lines = line.split("\\|");
+		for (String curLine : lines) {
+			curLine = curLine.trim();
+			if (curLine.contains(" ")) {
+				curLine = curLine.substring(0, curLine.indexOf(" "));
+			}
+			if (curLine.endsWith(",")) {
+				curLine = curLine.substring(0, curLine.length() - 1);
+			}
+			languages.add(curLine.trim());
+		}
 	}
 
 	public void parseSubtitleLanguages(String line) {
@@ -66,6 +83,10 @@ public class FilmLocation {
 
 	public String getLanguageText() {
 		return languageStr;
+	}
+
+	public List<String> getLanguages() {
+		return languages;
 	}
 
 	public String getSubtitleText() {

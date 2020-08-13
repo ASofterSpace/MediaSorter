@@ -28,8 +28,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.4(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 14. February 2020";
+	public final static String VERSION_NUMBER = "0.0.0.5(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 13. August 2020";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -37,9 +37,11 @@ public class Main {
 	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
 	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
 	public final static String OVERVIEW_BY_GENRES = "overviewByGenres";
+	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
 	private final static String OVERVIEW_FILM = "overviewForFilm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
+	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
 
 
 	public static void main(String[] args) {
@@ -336,6 +338,8 @@ public class Main {
 
 		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_AMAZINGNESS + ".htm");
 
+
+
 		// create overview sorted by year
 		filmBrackets = new TreeMap<>(new Comparator<String>() {
 			public int compare(String a, String b) {
@@ -357,6 +361,8 @@ public class Main {
 		}
 
 		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_YEAR + ".htm");
+
+
 
 		// create overviews for each genre
 		final Map<String, List<Film>> genreMap = new HashMap<>();
@@ -400,12 +406,60 @@ public class Main {
 			i++;
 		}
 
-		saveGenreOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm");
+		saveOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES);
+
+
+
+		// create overviews for each language
+		final Map<String, List<Film>> langMap = new HashMap<>();
+		List<String> languages = new ArrayList<>();
+
+		for (Film film : films) {
+			for (String lang : film.getLanguages()) {
+				if (!languages.contains(lang)) {
+					languages.add(lang);
+					langMap.put(lang, new ArrayList<Film>());
+				}
+				langMap.get(lang).add(film);
+			}
+		}
+
+		boolean langsContainedNull = languages.contains(null);
+		languages.remove(null);
+		Collections.sort(languages, new Comparator<String>() {
+			public int compare(String a, String b) {
+				return langMap.get(b).size() - langMap.get(a).size();
+			}
+		});
+		// order "no languages selected yet" towards the end
+		if (langsContainedNull) {
+			languages.add(null);
+		}
+
+		i = 0;
+
+		Map<String, Integer> langToNumberMap = new HashMap<>();
+
+		for (String lang : languages) {
+			langToNumberMap.put(lang, i);
+			List<Film> filmsOfThisLang = langMap.get(lang);
+			filmBrackets = new HashMap<>();
+			if (lang == null) {
+				lang = NO_LANGUAGE_SELECTED;
+			}
+			filmBrackets.put(lang, filmsOfThisLang);
+			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_LANGUAGES + i + ".htm");
+			i++;
+		}
+
+		saveOverview(languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES);
+
+
 
 		System.out.println("Saved overview HTML files!");
 
 		for (Film film : films) {
-			saveFilmFile(film, genreToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
+			saveFilmFile(film, genreToNumberMap, langToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
 		}
 
 		System.out.println("Saved individual film files!");
@@ -504,27 +558,28 @@ public class Main {
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>By Amazingness</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_YEAR + ".htm'>By Year</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + ".htm'>Select Genre</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_LANGUAGES + ".htm'>Select Language</a>");
 		overview.append("</div>");
 
 		return overview;
 	}
 
-	private static void saveGenreOverview(List<String> genres, String filename) {
+	private static void saveOverview(List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr) {
 
 		StringBuilder overview = getHtmlTop();
 
 		overview.append("<div class='bracketTitle'>");
-		overview.append("Select a Genre:");
+		overview.append("Select a " + overviewKind + ":");
 		overview.append("</div>");
 
 		// add genres
 		int i = 0;
 		for (String genre : genres) {
 			if (genre == null) {
-				genre = NO_GENRE_SELECTED;
+				genre = nullStr;
 			}
 			overview.append("<div class='linkcontainer'>");
-			overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + i + ".htm'>" + HTML.escapeHTMLstr(genre) + "</a>");
+			overview.append("<a class='toplink' href='" + ovrStr + i + ".htm'>" + HTML.escapeHTMLstr(genre) + "</a>");
 			overview.append("</div>");
 
 			i++;
@@ -587,7 +642,7 @@ public class Main {
 		overview.append("</div>");
 	}
 
-	private static void saveFilmFile(Film film, Map<String, Integer> genreToNumberMap, String filmpath, String filename) {
+	private static void saveFilmFile(Film film, Map<String, Integer> genreToNumberMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
 
 		StringBuilder overview = getHtmlTop();
 
@@ -624,7 +679,7 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append(film.getLocationHTML());
+		overview.append(film.getLocationHTML(langToNumberMap));
 		overview.append("</div>");
 
 		overview.append("</div>");

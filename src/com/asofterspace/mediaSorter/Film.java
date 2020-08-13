@@ -7,8 +7,10 @@ package com.asofterspace.mediaSorter;
 import com.asofterspace.toolbox.io.HTML;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class Film {
@@ -173,7 +175,21 @@ public class Film {
 		filmLocations.add(filmLocation);
 	}
 
-	public String getLocationHTML() {
+	public List<FilmLocation> getFilmLocations() {
+		return filmLocations;
+	}
+
+	public Set<String> getLanguages() {
+		Set<String> languages = new HashSet<>();
+		for (FilmLocation loc : filmLocations) {
+			for (String lang : loc.getLanguages()) {
+				languages.add(lang);
+			}
+		}
+		return languages;
+	}
+
+	public String getLocationHTML(Map<String, Integer> langToNumberMap) {
 		if (filmLocations.size() < 1) {
 			System.err.println("We do not actually have " + title + "!");
 			return "";
@@ -182,7 +198,16 @@ public class Film {
 		StringBuilder result = new StringBuilder();
 		for (FilmLocation loc : filmLocations) {
 			result.append("<br>");
-			result.append("Language: " + HTML.escapeHTMLstr(loc.getLanguageText()));
+			String langStr = HTML.escapeHTMLstr(loc.getLanguageText());
+			for (String language : langToNumberMap.keySet()) {
+				if (langStr.contains(language)) {
+					langStr = langStr.replace(
+						language,
+						"<a href='" + Main.OVERVIEW_BY_LANGUAGES + langToNumberMap.get(language) + ".htm'>" + language + "</a>"
+					);
+				}
+			}
+			result.append("Language: " + langStr);
 			result.append("<br>");
 			result.append("Subtitles: " + HTML.escapeHTMLstr(loc.getSubtitleText()));
 			result.append("<br>");
