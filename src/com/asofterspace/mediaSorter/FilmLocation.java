@@ -4,6 +4,8 @@
  */
 package com.asofterspace.mediaSorter;
 
+import com.asofterspace.toolbox.io.Directory;
+import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ public class FilmLocation {
 
 	private Film film;
 	private String fileLocationOrigin;
+	private String fileLocationOriginAlt;
 
 	private String languageStr;
 	private List<String> languages;
@@ -24,9 +27,10 @@ public class FilmLocation {
 	private List<String> locationStrs;
 
 
-	public FilmLocation(Film film, String fileLocationOrigin) {
+	public FilmLocation(Film film, String fileLocationOrigin, String fileLocationOriginAlt) {
 		this.film = film;
 		this.fileLocationOrigin = fileLocationOrigin;
+		this.fileLocationOriginAlt = fileLocationOriginAlt;
 		this.locationStrs = new ArrayList<>();
 		this.languages = new ArrayList<>();
 	}
@@ -126,13 +130,26 @@ public class FilmLocation {
 		if (container.contains("/")) {
 			container = container.substring(0, container.lastIndexOf("/"));
 		}
-		result += "<br>Contained in: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(container) + "'>" + HTML.escapeHTMLstr(container) + "</a>";
+		Directory containerDir = new Directory(fileLocationOrigin + container);
+		if (containerDir.exists()) {
+			result += "<br>Contained in: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(container) + "'>" + HTML.escapeHTMLstr(container) + "</a>";
+			return result;
+		}
+		if (fileLocationOriginAlt != null) {
+			containerDir = new Directory(fileLocationOriginAlt + container);
+			if (containerDir.exists()) {
+				result += "<br>Contained in: <a href='file:///" + fileLocationOriginAlt + HTML.escapeHTMLstr(container) + "'>" + HTML.escapeHTMLstr(container) + "</a>";
+				return result;
+			}
+		}
+		System.err.println("Folder " + fileLocationOrigin + container + " does not exist!");
 		return result;
 	}
 
 	private String getLocationHTMLmainStr() {
 		if (locationStrs.size() == 1) {
-			return "Location: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(locationStrs.get(0)) + "'>" + HTML.escapeHTMLstr(locationStrs.get(0)) + "</a>";
+			String origin = checkExistence(locationStrs.get(0));
+			return "Location: <a href='file:///" + origin + HTML.escapeHTMLstr(locationStrs.get(0)) + "'>" + HTML.escapeHTMLstr(locationStrs.get(0)) + "</a>";
 		}
 		StringBuilder result = new StringBuilder();
 		String sep = "";
@@ -140,10 +157,28 @@ public class FilmLocation {
 		for (String locationStr : locationStrs) {
 			result.append(sep);
 			sep = "<br>";
-			result.append("Location #" + i + ": <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(locationStr) + "'>" + HTML.escapeHTMLstr(locationStr) + "</a>");
+			String origin = checkExistence(locationStr);
+			result.append("Location #" + i + ": <a href='file:///" + origin + HTML.escapeHTMLstr(locationStr) + "'>" + HTML.escapeHTMLstr(locationStr) + "</a>");
 			i++;
 		}
 		return result.toString();
+	}
+
+	private String checkExistence(String fileName) {
+		File mediaFile = new File(new Directory(fileLocationOrigin), fileName);
+		if (mediaFile.exists()) {
+			return fileLocationOrigin;
+		}
+
+		if (fileLocationOriginAlt != null) {
+			mediaFile = new File(new Directory(fileLocationOriginAlt), fileName);
+			if (mediaFile.exists()) {
+				return fileLocationOriginAlt;
+			}
+		}
+
+		System.err.println("File " + mediaFile.getAbsoluteFilename() + " does not exist!");
+		return fileLocationOrigin;
 	}
 
 }

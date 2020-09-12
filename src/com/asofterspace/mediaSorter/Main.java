@@ -28,8 +28,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.5(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 13. August 2020";
+	public final static String VERSION_NUMBER = "0.0.0.6(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 14. September 2020";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -82,6 +82,7 @@ public class Main {
 		// load media files
 		String filmpath = config.getValue("filmpath");
 		String filmfileorigin = config.getValue("filmfileorigin");
+		String filmfileoriginalt = config.getValue("filmfileoriginalt");
 
 		if ((filmpath == null) || (filmpath.equals(""))) {
 			System.err.println("Sorry, no filmpath specified in the configuration.\n" +
@@ -201,7 +202,7 @@ public class Main {
 							break;
 						}
 						if (arcLine.startsWith("Language:")) {
-							curFilmLocation = new FilmLocation(curFilm, filmfileorigin);
+							curFilmLocation = new FilmLocation(curFilm, filmfileorigin, filmfileoriginalt);
 							curFilm.addFilmLocation(curFilmLocation);
 							curFilmLocation.parseLanguages(arcLine.substring("Language:".length() + 1));
 						}
