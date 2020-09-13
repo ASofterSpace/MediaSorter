@@ -38,6 +38,7 @@ public class Main {
 	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
 	public final static String OVERVIEW_BY_GENRES = "overviewByGenres";
 	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
+	public final static String OVERVIEW_BY_ADDITION = "overviewByAddition";
 	private final static String OVERVIEW_FILM = "overviewForFilm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
@@ -135,7 +136,7 @@ public class Main {
 				continue;
 			}
 
-			Film curFilm = new Film(filmname, filmfilename, filmcounter);
+			Film curFilm = new Film(film, filmname, filmfilename, filmcounter);
 			films.add(curFilm);
 
 			for (int j = 0; j < filmContents.size(); j++) {
@@ -292,6 +293,7 @@ public class Main {
 			stats.add("");
 		}
 
+
 		// save statistics
 		SimpleFile statsFile = new SimpleFile(filmpath + "/Statistics.stpu");
 		statsFile.setEncoding(TextEncoding.ISO_LATIN_1);
@@ -299,10 +301,12 @@ public class Main {
 
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
 
+
 		// create all films overview
 		Map<String, List<Film>> filmBrackets = new HashMap<>();
-		filmBrackets.put("All Films", films);
+		filmBrackets.put("All Films Alphabetically", films);
 		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW + ".htm");
+
 
 		// create overview sorted by amazingness
 		filmBrackets = new TreeMap<>(new Comparator<String>() {
@@ -456,6 +460,29 @@ public class Main {
 		saveOverview(languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES);
 
 
+		// create overview sorted by date of addition to the database
+		filmBrackets = new TreeMap<>(new Comparator<String>() {
+			public int compare(String a, String b) {
+				return b.compareTo(a);
+			}
+		});
+
+		for (Film film : films) {
+			if (film.getAdditionYearAndMonth() == null) {
+				System.err.println(film.getTitle() + " does not have an addition year and month assigned!");
+				continue;
+			}
+			List<Film> curList = filmBrackets.get(film.getAdditionYearAndMonth());
+			if (curList == null) {
+				curList = new ArrayList<>();
+				filmBrackets.put(film.getAdditionYearAndMonth(), curList);
+			}
+			curList.add(film);
+		}
+
+		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_ADDITION + ".htm");
+
+
 
 		System.out.println("Saved overview HTML files!");
 
@@ -555,11 +582,12 @@ public class Main {
 		// add links to other pages
 		overview.append("<body>");
 		overview.append("<div class='linkcontainer'>");
-		overview.append("<a class='toplink' href='" + OVERVIEW + ".htm'>All Films</a>");
-		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>By Amazingness</a>");
-		overview.append("<a class='toplink' href='" + OVERVIEW_BY_YEAR + ".htm'>By Year</a>");
-		overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + ".htm'>Select Genre</a>");
-		overview.append("<a class='toplink' href='" + OVERVIEW_BY_LANGUAGES + ".htm'>Select Language</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW + ".htm'>ABC</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_ADDITION + ".htm'>Newest</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>Amazingness</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_YEAR + ".htm'>Year</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + ".htm'>Genre</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_LANGUAGES + ".htm'>Language</a>");
 		overview.append("</div>");
 
 		return overview;

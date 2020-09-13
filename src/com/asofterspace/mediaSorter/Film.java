@@ -4,9 +4,13 @@
  */
 package com.asofterspace.mediaSorter;
 
+import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
+import com.asofterspace.toolbox.utils.DateUtils;
+import com.asofterspace.toolbox.utils.StrUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +18,8 @@ import java.util.Set;
 
 
 public class Film {
+
+	private String additionYearAndMonth;
 
 	// the human-readable title of the film
 	private String title;
@@ -40,7 +46,32 @@ public class Film {
 	private List<FilmLocation> filmLocations;
 
 
-	public Film(String title, String filename, int number) {
+	public Film(File baseFile, String title, String filename, int number) {
+
+		Date additionDate = baseFile.getCreationDate();
+		Date otherDate = baseFile.getChangeDate();
+		if (otherDate.before(additionDate)) {
+			additionDate = otherDate;
+		}
+		String picFileName = baseFile.getFilename();
+		if (picFileName.endsWith(".stpu")) {
+			picFileName = picFileName.substring(0, picFileName.lastIndexOf("."));
+		}
+		picFileName += "_1.jpg";
+		File picFile = new File(picFileName);
+		if (picFile.exists()) {
+			otherDate = picFile.getCreationDate();
+			if (otherDate.before(additionDate)) {
+				additionDate = otherDate;
+			}
+			otherDate = picFile.getChangeDate();
+			if (otherDate.before(additionDate)) {
+				additionDate = otherDate;
+			}
+		}
+		this.additionYearAndMonth = DateUtils.getYear(additionDate) + " / " +
+			StrUtils.leftPad0(DateUtils.getMonth(additionDate), 2);
+
 		this.title = title;
 		this.filename = filename;
 		this.number = number;
@@ -89,6 +120,10 @@ public class Film {
 
 	public String getYear() {
 		return year;
+	}
+
+	public String getAdditionYearAndMonth() {
+		return additionYearAndMonth;
 	}
 
 	public void setYear(String year) {
