@@ -10,6 +10,7 @@ import com.asofterspace.toolbox.io.HTML;
 import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
+import com.asofterspace.toolbox.utils.Record;
 import com.asofterspace.toolbox.utils.StrUtils;
 import com.asofterspace.toolbox.utils.TextEncoding;
 import com.asofterspace.toolbox.Utils;
@@ -28,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.6(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 14. September 2020";
+	public final static String VERSION_NUMBER = "0.0.0.7(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 23. September 2020";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -112,6 +113,8 @@ public class Main {
 
 		List<Film> films = new ArrayList<>();
 
+		Record filmMappings = config.getAllContents().get("filmNameMappings");
+
 		for (int i = 2; i < filmnames.size(); i++) {
 
 			String filmfilename = filmnames.get(i);
@@ -135,6 +138,8 @@ public class Main {
 			if (filmname.startsWith("%[")) {
 				continue;
 			}
+
+			filmname = mapFilmnameToSpecialFilmname(filmname, filmMappings);
 
 			Film curFilm = new Film(film, filmname, filmfilename, filmcounter);
 			films.add(curFilm);
@@ -730,6 +735,15 @@ public class Main {
 		SimpleFile overviewFile = new SimpleFile(filename);
 		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		overviewFile.saveContent(overview);
+	}
+
+	private static String mapFilmnameToSpecialFilmname(String filmname, Record filmMappings) {
+
+		if (filmMappings.get(filmname) != null) {
+			return filmMappings.getString(filmname);
+		}
+
+		return filmname;
 	}
 
 }
