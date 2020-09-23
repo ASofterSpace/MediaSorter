@@ -143,6 +143,7 @@ public class FilmLocation {
 			}
 		}
 		System.err.println("Folder " + fileLocationOrigin + container + " does not exist!");
+		result += "<br>Contained in: <a href='file:///" + fileLocationOrigin + HTML.escapeHTMLstr(container) + "'>" + HTML.escapeHTMLstr(container) + "</a>";
 		return result;
 	}
 
