@@ -224,6 +224,40 @@ public class Film {
 		return languages;
 	}
 
+	public String getLanguageShortText() {
+		Set<String> langs = getLanguages();
+		String result = "";
+		String sep = "";
+		for (String lang : langs) {
+			result += sep;
+			sep = ", ";
+			if (lang == null) {
+				result += "-";
+			} else {
+				switch (lang) {
+					case "none":
+						result += "-";
+						break;
+					case "German":
+						result += "DE";
+						break;
+					case "Japanese":
+						result += "JP";
+						break;
+					case "Spanish":
+						result += "ES";
+						break;
+					case "Icelandic":
+						result += "IS";
+						break;
+					default:
+						result += lang.substring(0, 2).toUpperCase();
+				}
+			}
+		}
+		return result;
+	}
+
 	public String getLocationHTML(Map<String, Integer> langToNumberMap) {
 		if (filmLocations.size() < 1) {
 			System.err.println("We do not actually have " + title + "!");

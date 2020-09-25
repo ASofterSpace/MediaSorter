@@ -29,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.7(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 23. September 2020";
+	public final static String VERSION_NUMBER = "0.0.0.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 24. September 2020";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -661,6 +661,8 @@ public class Main {
 			overview.append("</div>");
 			overview.append("<div class='extrainfo'>");
 			overview.append(HTML.escapeHTMLstr(film.getYear()));
+			overview.append(" &loz; ");
+			overview.append(HTML.escapeHTMLstr(film.getLanguageShortText()));
 			overview.append(" &loz; ");
 			overview.append(HTML.escapeHTMLstr(film.getAmazingnessShortText()));
 			overview.append("</div>");
