@@ -29,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 24. September 2020";
+	public final static String VERSION_NUMBER = "0.0.0.9(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 4. November 2020";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -581,6 +581,9 @@ public class Main {
 		overview.append("	text-decoration: none;");
 		overview.append("	color: #A0A;");
 		overview.append("}");
+		overview.append("div.filmcontainer a {");
+		overview.append("	color: #000;");
+		overview.append("}");
 		overview.append("</style>");
 		overview.append("</head>");
 
@@ -655,9 +658,12 @@ public class Main {
 
 		overview.append("<div class='filmcontainer'>");
 		for (Film film : filmsInBracket) {
+			String aHref = "<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm'>";
 			overview.append("<div class='film'>");
 			overview.append("<div class='filmtitle'>");
+			overview.append(aHref);
 			overview.append(HTML.escapeHTMLstr(film.getTitle()));
+			overview.append("</a>");
 			overview.append("</div>");
 			overview.append("<div class='extrainfo'>");
 			overview.append(HTML.escapeHTMLstr(film.getYear()));
@@ -666,7 +672,7 @@ public class Main {
 			overview.append(" &loz; ");
 			overview.append(HTML.escapeHTMLstr(film.getAmazingnessShortText()));
 			overview.append("</div>");
-			overview.append("<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm'>");
+			overview.append(aHref);
 			if (film.getPreviewPic().contains("'")) {
 				overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
 			} else {
