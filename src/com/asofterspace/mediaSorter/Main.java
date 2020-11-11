@@ -5,6 +5,7 @@
 package com.asofterspace.mediaSorter;
 
 import com.asofterspace.toolbox.configuration.ConfigFile;
+import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
 import com.asofterspace.toolbox.io.JSON;
@@ -64,6 +65,9 @@ public class Main {
 				return;
 			}
 		}
+
+		Directory confDir = new Directory("config");
+		Database database = new Database(confDir);
 
 		ConfigFile config = null;
 
@@ -473,6 +477,7 @@ public class Main {
 		});
 
 		for (Film film : films) {
+			film.consolidateAdditionDateWithDatabase(database);
 			if (film.getAdditionYearAndMonth() == null) {
 				System.err.println(film.getTitle() + " does not have an addition year and month assigned!");
 				continue;
@@ -484,6 +489,8 @@ public class Main {
 			}
 			curList.add(film);
 		}
+
+		database.save();
 
 		saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_ADDITION + ".htm");
 

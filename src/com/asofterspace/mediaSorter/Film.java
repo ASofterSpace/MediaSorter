@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class Film {
 
-	private String additionYearAndMonth;
+	private Date additionDate;
 
 	// the human-readable title of the film
 	private String title;
@@ -48,7 +48,7 @@ public class Film {
 
 	public Film(File baseFile, String title, String filename, int number) {
 
-		Date additionDate = baseFile.getCreationDate();
+		additionDate = baseFile.getCreationDate();
 		Date otherDate = baseFile.getChangeDate();
 		if (otherDate.before(additionDate)) {
 			additionDate = otherDate;
@@ -69,9 +69,6 @@ public class Film {
 				additionDate = otherDate;
 			}
 		}
-		this.additionYearAndMonth = DateUtils.getYear(additionDate) + " / " +
-			StrUtils.leftPad0(DateUtils.getMonth(additionDate), 2);
-
 		this.title = title;
 		this.filename = filename;
 		this.number = number;
@@ -123,7 +120,22 @@ public class Film {
 	}
 
 	public String getAdditionYearAndMonth() {
-		return additionYearAndMonth;
+		if (additionDate == null) {
+			return null;
+		}
+		return DateUtils.getYear(additionDate) + " / " +
+			StrUtils.leftPad0(DateUtils.getMonth(additionDate), 2);
+	}
+
+	// if the database has this film, take the database's value for addition date
+	// if not, take this date and store it in the database
+	public void consolidateAdditionDateWithDatabase(Database database) {
+		Date dbDate = database.getFilmDate(title);
+		if (dbDate == null) {
+			database.storeFilmDate(title, additionDate);
+		} else {
+			this.additionDate = dbDate;
+		}
 	}
 
 	public void setYear(String year) {
