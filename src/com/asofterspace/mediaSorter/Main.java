@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.0.9(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 4. November 2020";
+	public final static String VERSION_NUMBER = "0.0.1.0(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 10. December 2021";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -41,10 +41,11 @@ public class Main {
 	public final static String OVERVIEW_BY_GENRES = "overviewByGenres";
 	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
 	public final static String OVERVIEW_BY_ADDITION = "overviewByAddition";
-	private final static String OVERVIEW_FILM = "overviewForFilm";
+	public final static String OVERVIEW_FILM = "overviewForFilm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
+	private final static String PASSES_BECHDEL_STR = "Passes the Bechdel Test:";
 
 
 	public static void main(String[] args) {
@@ -129,6 +130,26 @@ public class Main {
 
 			SimpleFile film = new SimpleFile(filmpath + "/" + filmfilename + ".stpu");
 			film.setEncoding(TextEncoding.ISO_LATIN_1);
+
+			// make some adjustments automatically
+			boolean madeChanges = false;
+			String filmContent = film.getContent();
+			if (filmContent.toLowerCase().contains(PASSES_BECHDEL_STR.toLowerCase())) {
+				if (!filmContent.contains(PASSES_BECHDEL_STR)) {
+					filmContent = StrUtils.replaceAllIgnoreCase(filmContent,
+						PASSES_BECHDEL_STR, PASSES_BECHDEL_STR);
+					madeChanges = true;
+				}
+			}
+			if (!filmContent.contains(PASSES_BECHDEL_STR)) {
+				filmContent = StrUtils.replaceFirst(filmContent, "\nArchive:\n",
+					"\n" + PASSES_BECHDEL_STR + "\nno\n\n\nArchive:\n");
+				madeChanges = true;
+			}
+			if (madeChanges) {
+				film.saveContent(filmContent);
+			}
+
 			List<String> filmContents = film.getContents();
 
 			String filmname = filmContents.get(0);
@@ -170,6 +191,9 @@ public class Main {
 					}
 					thisYearsFilms.add(filmname);
 					curFilm.setYear(filmContents.get(j+1));
+				}
+				if (filmContents.get(j).equals("Passes the Bechdel Test:")) {
+					curFilm.setBechdel(filmContents.get(j+1));
 				}
 				if (filmContents.get(j).equals("Genre:")) {
 					String[] genres = filmContents.get(j+1).split(" / ");
@@ -250,6 +274,7 @@ public class Main {
 			filmcounter++;
 		}
 		for (Film film : films) {
+			film.consolidate();
 			film.resolveRelatedMovies(films);
 		}
 		stats.add("We have " + filmcounter + " films.");
@@ -665,28 +690,7 @@ public class Main {
 
 		overview.append("<div class='filmcontainer'>");
 		for (Film film : filmsInBracket) {
-			String aHref = "<a href='" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm'>";
-			overview.append("<div class='film'>");
-			overview.append("<div class='filmtitle'>");
-			overview.append(aHref);
-			overview.append(HTML.escapeHTMLstr(film.getTitle()));
-			overview.append("</a>");
-			overview.append("</div>");
-			overview.append("<div class='extrainfo'>");
-			overview.append(HTML.escapeHTMLstr(film.getYear()));
-			overview.append(" &loz; ");
-			overview.append(HTML.escapeHTMLstr(film.getLanguageShortText()));
-			overview.append(" &loz; ");
-			overview.append(HTML.escapeHTMLstr(film.getAmazingnessShortText()));
-			overview.append("</div>");
-			overview.append(aHref);
-			if (film.getPreviewPic().contains("'")) {
-				overview.append("<img src=\"" + film.getPreviewPic() + "\"/>");
-			} else {
-				overview.append("<img src='" + film.getPreviewPic() + "'/>");
-			}
-			overview.append("</a>");
-			overview.append("</div>");
+			film.appendAsHtmlToOverview(overview);
 		}
 		overview.append("</div>");
 	}

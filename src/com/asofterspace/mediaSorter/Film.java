@@ -45,6 +45,8 @@ public class Film {
 
 	private List<FilmLocation> filmLocations;
 
+	private Boolean bechdel = null;
+
 
 	public Film(File baseFile, String title, String filename, int number) {
 
@@ -226,6 +228,25 @@ public class Film {
 		return filmLocations;
 	}
 
+	public Boolean getBechdel() {
+		return bechdel;
+	}
+
+	public void setBechdel(String bechdelStr) {
+		if (bechdelStr != null) {
+			bechdelStr = bechdelStr.toLowerCase();
+			if ("no".equals(bechdelStr)) {
+				this.bechdel = false;
+				return;
+			}
+			if ("yes".equals(bechdelStr)) {
+				this.bechdel = true;
+				return;
+			}
+		}
+		System.err.println("BechdelStr could not be interpreted in movie " + title + ": \"" + bechdelStr + "\"");
+	}
+
 	public Set<String> getLanguages() {
 		Set<String> languages = new HashSet<>();
 		for (FilmLocation loc : filmLocations) {
@@ -309,4 +330,49 @@ public class Film {
 		}
 		return result.toString();
 	}
+
+	public void consolidate() {
+		if (bechdel == null) {
+			System.err.println("Bechdel stats not set for movie " + title + "!");
+			bechdel = false;
+		}
+	}
+
+	public void appendAsHtmlToOverview(StringBuilder overview) {
+		String aHref = "<a href='" + Main.OVERVIEW_FILM + "_" + this.getNumber() + ".htm'>";
+		overview.append("<div class='film'>");
+		overview.append("<div class='filmtitle'>");
+		overview.append(aHref);
+		overview.append(HTML.escapeHTMLstr(this.getTitle()));
+		overview.append("</a>");
+		overview.append("</div>");
+		overview.append("<div class='extrainfo'>");
+		overview.append(HTML.escapeHTMLstr(this.getYear()));
+		overview.append(" &loz; ");
+		overview.append(HTML.escapeHTMLstr(this.getLanguageShortText()));
+		overview.append(" &loz; ");
+		if (this.getBechdel()) {
+			overview.append("<span style='position:relative'>");
+			overview.append("<span style='position:absolute;bottom:1px;'>&#x2640;</span>");
+			overview.append("<span style='position:absolute;bottom:2px;'>&#x2640;</span>");
+			overview.append("<span style='position:absolute;bottom:1px;left:-1px'>&#x2640;</span>");
+			overview.append("<span style='position:absolute;bottom:2px;left:-1px'>&#x2640;</span>");
+			overview.append("&nbsp;&nbsp;");
+			overview.append("</span>");
+		} else {
+			overview.append("&#x2620;");
+		}
+		overview.append(" &loz; ");
+		overview.append(HTML.escapeHTMLstr(this.getAmazingnessShortText()));
+		overview.append("</div>");
+		overview.append(aHref);
+		if (this.getPreviewPic().contains("'")) {
+			overview.append("<img src=\"" + this.getPreviewPic() + "\"/>");
+		} else {
+			overview.append("<img src='" + this.getPreviewPic() + "'/>");
+		}
+		overview.append("</a>");
+		overview.append("</div>");
+	}
+
 }
