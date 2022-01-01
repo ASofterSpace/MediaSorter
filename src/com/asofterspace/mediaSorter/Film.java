@@ -340,12 +340,15 @@ public class Film {
 
 	public void appendAsHtmlToOverview(StringBuilder overview) {
 		String aHref = "<a href='" + Main.OVERVIEW_FILM + "_" + this.getNumber() + ".htm'>";
-		overview.append("<div class='film'>");
+
+		overview.append("<div class='film bechdel" + this.getBechdel() + "film'>");
+
 		overview.append("<div class='filmtitle'>");
 		overview.append(aHref);
 		overview.append(HTML.escapeHTMLstr(this.getTitle()));
 		overview.append("</a>");
 		overview.append("</div>");
+
 		overview.append("<div class='extrainfo'>");
 		overview.append(HTML.escapeHTMLstr(this.getYear()));
 		overview.append(" &loz; ");
@@ -365,6 +368,7 @@ public class Film {
 		overview.append(" &loz; ");
 		overview.append(HTML.escapeHTMLstr(this.getAmazingnessShortText()));
 		overview.append("</div>");
+
 		overview.append(aHref);
 		if (this.getPreviewPic().contains("'")) {
 			overview.append("<img src=\"" + this.getPreviewPic() + "\"/>");
@@ -372,6 +376,7 @@ public class Film {
 			overview.append("<img src='" + this.getPreviewPic() + "'/>");
 		}
 		overview.append("</a>");
+
 		overview.append("</div>");
 	}
 

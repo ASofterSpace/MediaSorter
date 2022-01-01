@@ -550,6 +550,7 @@ public class Main {
 
 		// add header
 		overview.append("<head>");
+		overview.append("<meta charset=\"iso-8859-1\">");
 		overview.append("<style>");
 		overview.append("div.filmcontainer {");
 		overview.append("	display: flex;");
@@ -666,6 +667,32 @@ public class Main {
 
 		StringBuilder overview = getHtmlTop();
 
+		String BECHDEL_BUTTON_DEFAULT = "Remove Films Not Passing Bechdel Test";
+		overview.append("<script>\n");
+		overview.append("window.toggleBechdel = function() {\n");
+		overview.append("\tvar bechdelButton = document.getElementById('bechdelButton');\n");
+		overview.append("\tvar bechdelFalseFilms = document.getElementsByClassName('film bechdelfalsefilm');\n");
+		overview.append("\tif (bechdelButton.innerHTML == '" + BECHDEL_BUTTON_DEFAULT + "') {\n");
+		overview.append("\t\tbechdelButton.innerHTML = 'Show Films Not Passing Bechdel Test';\n");
+		overview.append("\t\tfor (var i = 0; i < bechdelFalseFilms.length; i++) {\n");
+		overview.append("\t\t\tbechdelFalseFilms[i].style.display = 'none';\n");
+		overview.append("\t\t}\n");
+		overview.append("\t} else {\n");
+		overview.append("\t\tbechdelButton.innerHTML = '" + BECHDEL_BUTTON_DEFAULT + "';\n");
+		overview.append("\t\tfor (var i = 0; i < bechdelFalseFilms.length; i++) {\n");
+		overview.append("\t\t\tbechdelFalseFilms[i].style.display = 'inline';\n");
+		overview.append("\t\t}\n");
+		overview.append("\t}\n");
+		overview.append("}\n");
+		overview.append("</script>\n");
+		overview.append("<span id='bechdelButton' " +
+			"style='position:fixed; bottom:0px; right:-30px; cursor: pointer; font-weight: bold; " +
+			"background: radial-gradient(#FFF, #FFF, #FFF, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); " +
+			"padding: 5px 40px;' " +
+			"onclick='toggleBechdel();'>");
+		overview.append(BECHDEL_BUTTON_DEFAULT);
+		overview.append("</span>");
+
 		// add films
 		for (Map.Entry<String, List<Film>> filmBracket : films.entrySet()) {
 			String filmBracketLabel = filmBracket.getKey();
@@ -721,6 +748,15 @@ public class Main {
 
 		overview.append("<div class='filminfo'>");
 		overview.append("Review: " + HTML.escapeHTMLstr(film.getReview()));
+		overview.append("</div>");
+
+		overview.append("<div class='filminfo'>");
+		overview.append("Bechdel Test: ");
+		if (film.getBechdel()) {
+			overview.append("&#x2640; At least two women who are named characters are talking for at least one minute about a topic other than a man. :)");
+		} else {
+			overview.append("&#x2620; Does not pass!");
+		}
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
