@@ -546,7 +546,11 @@ public class Main {
 	private static StringBuilder getHtmlTop() {
 
 		StringBuilder overview = new StringBuilder();
-		overview.append("<html>");
+
+		// use MotW so that IE allows embedded javascript to run without asking every time
+		overview.append("<!DOCTYPE html>\r\n");
+		overview.append("<!-- saved from url=(0016)https://localhost -->\r\n");
+		overview.append("<html>\r\n");
 
 		// add header
 		overview.append("<head>");
