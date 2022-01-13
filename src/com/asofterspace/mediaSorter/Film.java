@@ -46,6 +46,7 @@ public class Film {
 	private List<FilmLocation> filmLocations;
 
 	private Boolean bechdel = null;
+	private String bechdelTime = null;
 
 
 	public Film(File baseFile, String title, String filename, int number) {
@@ -234,17 +235,28 @@ public class Film {
 
 	public void setBechdel(String bechdelStr) {
 		if (bechdelStr != null) {
+			String[] bechdelStrs = bechdelStr.split(",");
 			bechdelStr = bechdelStr.toLowerCase();
-			if ("no".equals(bechdelStr)) {
+			if (bechdelStr.startsWith("no")) {
 				this.bechdel = false;
 				return;
 			}
-			if ("yes".equals(bechdelStr)) {
+			if (bechdelStr.startsWith("yes")) {
 				this.bechdel = true;
+				for (int i = 1; i < bechdelStrs.length; i++) {
+					String cur = bechdelStrs[i].trim();
+					if (cur.contains(":")) {
+						bechdelTime = cur;
+					}
+				}
 				return;
 			}
 		}
 		System.err.println("BechdelStr could not be interpreted in movie " + title + ": \"" + bechdelStr + "\"");
+	}
+
+	public String getBechdelTime() {
+		return bechdelTime;
 	}
 
 	public Set<String> getLanguages() {
