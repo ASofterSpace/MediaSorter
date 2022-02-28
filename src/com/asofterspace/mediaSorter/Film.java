@@ -241,6 +241,10 @@ public class Film {
 				this.bechdel = false;
 				return;
 			}
+			if (bechdelStr.startsWith("unknown")) {
+				this.bechdel = null;
+				return;
+			}
 			if (bechdelStr.startsWith("yes")) {
 				this.bechdel = true;
 				for (int i = 1; i < bechdelStrs.length; i++) {
@@ -344,16 +348,17 @@ public class Film {
 	}
 
 	public void consolidate() {
-		if (bechdel == null) {
-			System.err.println("Bechdel stats not set for movie " + title + "!");
-			bechdel = false;
-		}
+		// could consolide some stuff here, if I wanted to xD
 	}
 
 	public void appendAsHtmlToOverview(StringBuilder overview) {
 		String aHref = "<a href='" + Main.OVERVIEW_FILM + "_" + this.getNumber() + ".htm'>";
 
-		overview.append("<div class='film bechdel" + this.getBechdel() + "film'>");
+		Boolean bechdelTrueOrFalseOnly = this.getBechdel();
+		if (bechdelTrueOrFalseOnly == null) {
+			bechdelTrueOrFalseOnly = false;
+		}
+		overview.append("<div class='film bechdel" + bechdelTrueOrFalseOnly + "film'>");
 
 		overview.append("<div class='filmtitle'>");
 		overview.append(aHref);
@@ -366,16 +371,20 @@ public class Film {
 		overview.append(" &loz; ");
 		overview.append(HTML.escapeHTMLstr(this.getLanguageShortText()));
 		overview.append(" &loz; ");
-		if (this.getBechdel()) {
-			overview.append("<span style='position:relative'>");
-			overview.append("<span style='position:absolute;bottom:1px;'>&#x2640;</span>");
-			overview.append("<span style='position:absolute;bottom:2px;'>&#x2640;</span>");
-			overview.append("<span style='position:absolute;bottom:1px;left:-1px'>&#x2640;</span>");
-			overview.append("<span style='position:absolute;bottom:2px;left:-1px'>&#x2640;</span>");
-			overview.append("&nbsp;&nbsp;");
-			overview.append("</span>");
+		if (this.getBechdel() == null) {
+			overview.append("?");
 		} else {
-			overview.append("&#x2620;");
+			if (this.getBechdel()) {
+				overview.append("<span style='position:relative'>");
+				overview.append("<span style='position:absolute;bottom:1px;'>&#x2640;</span>");
+				overview.append("<span style='position:absolute;bottom:2px;'>&#x2640;</span>");
+				overview.append("<span style='position:absolute;bottom:1px;left:-1px'>&#x2640;</span>");
+				overview.append("<span style='position:absolute;bottom:2px;left:-1px'>&#x2640;</span>");
+				overview.append("&nbsp;&nbsp;");
+				overview.append("</span>");
+			} else {
+				overview.append("&#x2620;");
+			}
 		}
 		overview.append(" &loz; ");
 		overview.append(HTML.escapeHTMLstr(this.getAmazingnessShortText()));
