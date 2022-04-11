@@ -11,6 +11,7 @@ import com.asofterspace.toolbox.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class Film {
 	private List<FilmLocation> filmLocations;
 
 	private Boolean bechdel = null;
-	private String bechdelTime = null;
+	private Map<String, String> bechdelTimes = new HashMap<>();
 
 
 	public Film(File baseFile, String title, String filename, int number) {
@@ -237,6 +238,28 @@ public class Film {
 		if (bechdelStr != null) {
 			String[] bechdelStrs = bechdelStr.split(",");
 			bechdelStr = bechdelStr.toLowerCase();
+
+			for (int i = 1; i < bechdelStrs.length; i++) {
+				String cur = bechdelStrs[i].trim();
+				if (cur.contains(":")) {
+					String key = cur;
+					String value = "";
+					if (cur.contains(" ")) {
+						key = cur.substring(0, cur.indexOf(" ")).trim();
+						value = cur.substring(cur.indexOf(" ")).trim();
+						if (value.startsWith("(")) {
+							value = value.substring(1).trim();
+						}
+						if (value.endsWith(")")) {
+							value = value.substring(0, value.length() - 1).trim();
+						}
+					}
+					key = key.toLowerCase();
+					value = value.toLowerCase();
+					this.bechdelTimes.put(key, value);
+				}
+			}
+
 			if (bechdelStr.startsWith("no")) {
 				this.bechdel = false;
 				return;
@@ -247,20 +270,64 @@ public class Film {
 			}
 			if (bechdelStr.startsWith("yes")) {
 				this.bechdel = true;
-				for (int i = 1; i < bechdelStrs.length; i++) {
-					String cur = bechdelStrs[i].trim();
-					if (cur.contains(":")) {
-						bechdelTime = cur;
-					}
-				}
 				return;
 			}
 		}
 		System.err.println("BechdelStr could not be interpreted in movie " + title + ": \"" + bechdelStr + "\"");
 	}
 
-	public String getBechdelTime() {
-		return bechdelTime;
+	public String getBechdelText() {
+
+		StringBuilder result = new StringBuilder();
+
+		if (bechdel == null) {
+
+			result.append("? No idea if it passes!");
+
+		} else {
+
+			if (bechdel) {
+				result.append("&#x2640; ");
+
+				String bechdelTime = null;
+				for (Map.Entry<String, String> entry : bechdelTimes.entrySet()) {
+					bechdelTime = entry.getKey();
+				}
+
+				if (bechdelTime == null) {
+					result.append("A");
+				} else {
+					result.append("Starting at " + bechdelTime + ", a");
+				}
+				result.append("t least two women who are named characters are talking for at least one minute about a topic other than a man. :)");
+
+			} else {
+
+				result.append("&#x2620; Does not pass!");
+
+				for (Map.Entry<String, String> entry : bechdelTimes.entrySet()) {
+					result.append(" Starting at " + entry.getKey() + ", ");
+					String value = entry.getValue();
+					switch (value) {
+						case "not a named character":
+							result.append("women are talking but they are not all named characters.");
+							break;
+						case "less than a minute":
+							result.append("women are talking but for less than a minute.");
+							break;
+						case "talking about a man":
+							result.append("women are talking but the topic of their conversation is a man.");
+							break;
+						default:
+							result.append("women are talking but it does not count.");
+							System.err.println("BechdelStr value '" + value + "' could not be interpreted in movie " + title + "!");
+							break;
+					}
+				}
+			}
+		}
+
+		return result.toString();
 	}
 
 	public Set<String> getLanguages() {

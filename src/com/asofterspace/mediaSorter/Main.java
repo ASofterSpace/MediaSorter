@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.2(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 1. March 2022";
+	public final static String VERSION_NUMBER = "0.0.1.3(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 11. April 2022";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -756,21 +756,7 @@ public class Main {
 
 		overview.append("<div class='filminfo'>");
 		overview.append("Bechdel Test: ");
-		if (film.getBechdel() == null) {
-			overview.append("? No idea if it passes!");
-		} else {
-			if (film.getBechdel()) {
-				overview.append("&#x2640; ");
-				if (film.getBechdelTime() == null) {
-					overview.append("A");
-				} else {
-					overview.append("Starting at " + film.getBechdelTime() + ", a");
-				}
-				overview.append("t least two women who are named characters are talking for at least one minute about a topic other than a man. :)");
-			} else {
-				overview.append("&#x2620; Does not pass!");
-			}
-		}
+		overview.append(film.getBechdelText());
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
