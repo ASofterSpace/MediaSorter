@@ -44,6 +44,8 @@ public class Film {
 
 	private List<Film> relatedMovies;
 
+	private List<Film> similarlyNamedMovies;
+
 	private List<FilmLocation> filmLocations;
 
 	private Boolean bechdel = null;
@@ -79,6 +81,7 @@ public class Film {
 		this.genres = new ArrayList<>();
 		this.relatedMovieNames = new ArrayList<>();
 		this.relatedMovies = new ArrayList<>();
+		this.similarlyNamedMovies = new ArrayList<>();
 		this.filmLocations = new ArrayList<>();
 	}
 
@@ -202,6 +205,33 @@ public class Film {
 		relatedMovieNames.add(name);
 	}
 
+	private boolean isNameSimilar(Film other) {
+		String thisTitle = StrUtils.replaceAll(StrUtils.replaceAll(title.toLowerCase().trim(), ":", " "), "-", " ");
+		List<String> thisTitleWords = StrUtils.split(thisTitle, " ");
+
+		String otherTitle = StrUtils.replaceAll(StrUtils.replaceAll(other.title.toLowerCase().trim(), ":", " "), "-", " ");
+		List<String> otherTitleWords = StrUtils.split(otherTitle, " ");
+
+		// ignore any words below this length, such as articles
+		int IGNORE_BELOW_LEN = 4;
+
+		for (String thisTitleWord : thisTitleWords) {
+			if (thisTitleWord.length() < IGNORE_BELOW_LEN) {
+				continue;
+			}
+			for (String otherTitleWord : otherTitleWords) {
+				if (otherTitleWord.length() < IGNORE_BELOW_LEN) {
+					continue;
+				}
+				if (thisTitleWord.equals(otherTitleWord)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public void resolveRelatedMovies(List<Film> films) {
 		for (String name : relatedMovieNames) {
 			boolean foundIt = false;
@@ -216,10 +246,21 @@ public class Film {
 				System.err.println("For " + title + " could not find related movie " + name + "!");
 			}
 		}
+
+		for (Film film : films) {
+			if (isNameSimilar(film)) {
+				similarlyNamedMovies.add(film);
+			}
+		}
 	}
 
 	public List<Film> getRelatedMovies() {
 		return relatedMovies;
+	}
+
+
+	public List<Film> getSimilarlyNamedMovies() {
+		return similarlyNamedMovies;
 	}
 
 	public void addFilmLocation(FilmLocation filmLocation) {

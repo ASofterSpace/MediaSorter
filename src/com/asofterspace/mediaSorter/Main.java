@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.3(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 11. April 2022";
+	public final static String VERSION_NUMBER = "0.0.1.4(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 22. December 2022";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -781,6 +781,15 @@ public class Main {
 			overview.append("</div>");
 
 			appendFilmsToOverview(overview, film.getRelatedMovies());
+		}
+
+		// only show this if there are other movies, besides this one, with the same name
+		if (film.getSimilarlyNamedMovies().size() > 1) {
+			overview.append("<div class='filminfo center'>");
+			overview.append("Similarly Named Movies:");
+			overview.append("</div>");
+
+			appendFilmsToOverview(overview, film.getSimilarlyNamedMovies());
 		}
 
 		overview.append("</body>");
