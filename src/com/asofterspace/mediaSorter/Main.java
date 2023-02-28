@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.4(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 22. December 2022";
+	public final static String VERSION_NUMBER = "0.0.1.5(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 28. February 2023";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -431,21 +431,25 @@ public class Main {
 
 		int i = 0;
 
-		Map<String, Integer> genreToNumberMap = new HashMap<>();
+		Map<String, String> genreToKeyMap = new HashMap<>();
 
 		for (String genre : genres) {
-			genreToNumberMap.put(genre, i);
+			String genreSanitized = genre.trim().toLowerCase();
+			genreSanitized = StrUtils.replaceAll(genreSanitized, " ", "");
+			genreSanitized = StrUtils.replaceAll(genreSanitized, "*", "");
+			genreSanitized = StrUtils.replaceAll(genreSanitized, "&", "");
+			genreToKeyMap.put(genre, genreSanitized);
 			List<Film> filmsOfThisGenre = genreMap.get(genre);
 			filmBrackets = new HashMap<>();
 			if (genre == null) {
 				genre = NO_GENRE_SELECTED;
 			}
 			filmBrackets.put(genre, filmsOfThisGenre);
-			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_GENRES + i + ".htm");
+			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_GENRES + "_" + genreSanitized + ".htm");
 			i++;
 		}
 
-		saveOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES);
+		saveOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES, genreToKeyMap);
 
 
 
@@ -491,7 +495,7 @@ public class Main {
 			i++;
 		}
 
-		saveOverview(languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES);
+		saveOverview(languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES, null);
 
 
 		// create overview sorted by date of addition to the database
@@ -524,7 +528,7 @@ public class Main {
 		System.out.println("Saved overview HTML files!");
 
 		for (Film film : films) {
-			saveFilmFile(film, genreToNumberMap, langToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
+			saveFilmFile(film, genreToKeyMap, langToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
 		}
 
 		System.out.println("Saved individual film files!");
@@ -638,7 +642,7 @@ public class Main {
 		return overview;
 	}
 
-	private static void saveOverview(List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr) {
+	private static void saveOverview(List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr, Map<String, String> genreToKeyMap) {
 
 		StringBuilder overview = getHtmlTop();
 
@@ -653,7 +657,13 @@ public class Main {
 				genre = nullStr;
 			}
 			overview.append("<div class='linkcontainer'>");
-			overview.append("<a class='toplink' href='" + ovrStr + i + ".htm'>" + HTML.escapeHTMLstr(genre) + "</a>");
+			overview.append("<a class='toplink' href='" + ovrStr);
+			if (genreToKeyMap == null) {
+				overview.append("" + i);
+			} else {
+				overview.append("_" + genreToKeyMap.get(genre));
+			}
+			overview.append(".htm'>" + HTML.escapeHTMLstr(genre) + "</a>");
 			overview.append("</div>");
 
 			i++;
@@ -726,7 +736,7 @@ public class Main {
 		overview.append("</div>");
 	}
 
-	private static void saveFilmFile(Film film, Map<String, Integer> genreToNumberMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
+	private static void saveFilmFile(Film film, Map<String, String> genreToKeyMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
 
 		StringBuilder overview = getHtmlTop();
 
@@ -764,7 +774,7 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Genres: " + film.getGenreHTML(genreToNumberMap));
+		overview.append("Genres: " + film.getGenreHTML(genreToKeyMap));
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");

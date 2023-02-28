@@ -149,14 +149,14 @@ public class Film {
 		this.year = year;
 	}
 
-	private String toGenreLink(String genreStr, String key, Map<String, Integer> genreToNumberMap) {
-		return "<a href='" + Main.OVERVIEW_BY_GENRES +
-				genreToNumberMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(genreStr) + "</a>";
+	private String toGenreLink(String genreStr, String key, Map<String, String> genreToKeyMap) {
+		return "<a href='" + Main.OVERVIEW_BY_GENRES + "_" +
+				genreToKeyMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(genreStr) + "</a>";
 	}
 
-	public String getGenreHTML(Map<String, Integer> genreToNumberMap) {
+	public String getGenreHTML(Map<String, String> genreToKeyMap) {
 		if ((genres.size() < 1) || (genres.get(0) == null)) {
-			return toGenreLink("No genre selected yet", null, genreToNumberMap);
+			return toGenreLink("No genre selected yet", null, genreToKeyMap);
 		}
 
 		StringBuilder result = new StringBuilder();
@@ -168,7 +168,7 @@ public class Film {
 				} else {
 					result.append(" / ");
 				}
-				result.append(toGenreLink(genre, genre, genreToNumberMap));
+				result.append(toGenreLink(genre, genre, genreToKeyMap));
 			}
 		}
 		return result.toString();
