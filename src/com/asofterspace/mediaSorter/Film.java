@@ -40,6 +40,8 @@ public class Film {
 
 	private String review;
 
+	private String triggerWarning;
+
 	private List<String> relatedMovieNames;
 
 	private List<Film> relatedMovies;
@@ -199,6 +201,17 @@ public class Film {
 
 	public void setReview(String review) {
 		this.review = review;
+	}
+
+	public String getTriggerWarning() {
+		if (triggerWarning == null) {
+			return "(unknown)";
+		}
+		return triggerWarning;
+	}
+
+	public void setTriggerWarning(String triggerWarning) {
+		this.triggerWarning = triggerWarning;
 	}
 
 	public void addRelatedMovieName(String name) {

@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.5(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 28. February 2023";
+	public final static String VERSION_NUMBER = "0.0.1.6(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 25. April 2023";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -181,7 +181,20 @@ public class Main {
 						thisAmazingnessFilms.add(filmname);
 					}
 					curFilm.setAmazingness(amazingness);
-					curFilm.setReview(filmContents.get(j+2));
+					String triggerText = null;
+					StringBuilder reviewText = new StringBuilder();
+					int curLine = j+2;
+					while (!"".equals(filmContents.get(curLine).trim())) {
+						String line = filmContents.get(curLine).trim();
+						if (line.startsWith("Trigger warning: ") || line.startsWith("Trigger warnings: ")) {
+							triggerText = line.substring(line.indexOf(": ") + 2).trim();
+						} else {
+							reviewText.append(line + " ");
+						}
+						curLine++;
+					}
+					curFilm.setReview(reviewText.toString().trim());
+					curFilm.setTriggerWarning(triggerText);
 				}
 				if (filmContents.get(j).equals("From:")) {
 					List<String> thisYearsFilms = yearlyFilms.get(filmContents.get(j+1));
@@ -762,6 +775,11 @@ public class Main {
 
 		overview.append("<div class='filminfo'>");
 		overview.append("Review: " + HTML.escapeHTMLstr(film.getReview()));
+		overview.append("</div>");
+
+		overview.append("<div class='filminfo'>");
+		overview.append("Trigger Warning: ");
+		overview.append(HTML.escapeHTMLstr(film.getTriggerWarning()));
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
