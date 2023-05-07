@@ -482,9 +482,11 @@ public class Film {
 		overview.append("<div class='film bechdel" + bechdelTrueOrFalseOnly + "film'>");
 
 		overview.append("<div class='filmtitle'>");
+		overview.append("<div class='filmtitleheightadjust'>");
 		overview.append(aHref);
 		overview.append(HTML.escapeHTMLstr(this.getTitle()));
 		overview.append("</a>");
+		overview.append("</div>");
 		overview.append("</div>");
 
 		overview.append("<div class='extrainfo'>");
@@ -517,6 +519,8 @@ public class Film {
 		} else {
 			overview.append("<img src='" + this.getPreviewPic() + "'/>");
 		}
+		overview.append("<div class='imgsurrounder'>");
+		overview.append("</div>");
 		overview.append("</a>");
 
 		overview.append("</div>");

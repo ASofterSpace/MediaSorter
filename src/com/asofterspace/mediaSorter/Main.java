@@ -30,8 +30,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.6(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 25. April 2023";
+	public final static String VERSION_NUMBER = "0.0.1.7(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 7. May 2023";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -560,7 +560,7 @@ public class Main {
 		return result;
 	}
 
-	private static StringBuilder getHtmlTop() {
+	private static StringBuilder getHtmlTop(boolean useFlatBackground) {
 
 		StringBuilder overview = new StringBuilder();
 
@@ -573,6 +573,10 @@ public class Main {
 		overview.append("<head>");
 		overview.append("<meta charset=\"iso-8859-1\">");
 		overview.append("<style>");
+		overview.append("body {");
+		overview.append("	background: linear-gradient(-29deg, #160022, #202, #11001A, #202, #201, #202, #202, #202, #11001A, #201, #202, #102, #101, #11001A, #202, #160022, #202, #11001A, #101, #11001A, #202);");
+		overview.append("	color: rgb(136, 170, 255);");
+		overview.append("}");
 		overview.append("div.filmcontainer {");
 		overview.append("	display: flex;");
 		overview.append("	flex-wrap: wrap;");
@@ -585,9 +589,12 @@ public class Main {
 		overview.append("}");
 		overview.append("img {");
 		overview.append("	width: 200pt;");
+		overview.append("	height: 300pt;");
+		overview.append("	object-fit: cover;");
 		overview.append("}");
 		overview.append("img.bigpic {");
 		overview.append("	width: 300pt;");
+		overview.append("	height: unset;");
 		overview.append("	padding-right: 10pt;");
 		overview.append("}");
 		overview.append("div.bracketTitle {");
@@ -598,6 +605,18 @@ public class Main {
 		overview.append("	text-align: center;");
 		overview.append("	width: 200pt;");
 		overview.append("	font-weight: bold;");
+		overview.append("}");
+		overview.append("div.filmtitle {");
+		overview.append("	position: relative;");
+		overview.append("	height: 30pt;");
+		overview.append("}");
+		overview.append("div.filmtitleheightadjust {");
+		overview.append("	position: absolute; left: 0; right: 0; bottom: 0;");
+		overview.append("}");
+		String imgFrameCol = "#202";
+		overview.append("div.imgsurrounder {");
+		overview.append("	box-shadow: inset 0px 0px 5px 5px " + imgFrameCol + ";");
+		overview.append("	height: 300pt;position: absolute;left: 0;top: 0;width: 200pt;");
 		overview.append("}");
 		overview.append("div.filminfo {");
 		overview.append("	font-size: 200%;");
@@ -627,22 +646,30 @@ public class Main {
 		overview.append("	font-size: 200%;");
 		overview.append("	padding: 2pt 5pt 5pt 5pt;");
 		overview.append("	margin: 10pt;");
-		overview.append("	box-shadow: 5px 5px 5px #FFF, -5px 5px 5px #D8D, -5px -5px 5px #A0A, 5px -5px 5px #FCF;");
-		overview.append("	background-color: white;");
+		overview.append("	box-shadow: 5px 5px 5px #308, -5px 5px 5px #F3F, -5px -5px 5px #A0A, 5px -5px 5px #80F;");
+		overview.append("	background-color: #70B;");
 		overview.append("	border-radius: 10pt;");
+		overview.append("	color: #FBF;");
+		overview.append("}");
+		overview.append("div.film > a {");
+		overview.append("	position: relative;display: inline-block;");
 		overview.append("}");
 		overview.append("a {");
 		overview.append("	text-decoration: none;");
-		overview.append("	color: #A0A;");
+		overview.append("	color: rgb(220, 120, 255);;");
 		overview.append("}");
 		overview.append("div.filmcontainer a {");
-		overview.append("	color: #000;");
+		overview.append("	color: rgb(136, 170, 255);");
 		overview.append("}");
 		overview.append("</style>");
 		overview.append("</head>");
 
 		// add links to other pages
-		overview.append("<body>");
+		overview.append("<body");
+		if (useFlatBackground) {
+			overview.append(" style='background: " + imgFrameCol + ";'");
+		}
+		overview.append(">");
 		overview.append("<div class='linkcontainer'>");
 		overview.append("<a class='toplink' href='" + OVERVIEW + ".htm'>ABC</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_ADDITION + ".htm'>Newest</a>");
@@ -657,7 +684,7 @@ public class Main {
 
 	private static void saveOverview(List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr, Map<String, String> genreToKeyMap) {
 
-		StringBuilder overview = getHtmlTop();
+		StringBuilder overview = getHtmlTop(false);
 
 		overview.append("<div class='bracketTitle'>");
 		overview.append("Select a " + overviewKind + ":");
@@ -692,7 +719,7 @@ public class Main {
 
 	private static void saveFilmsAsOverview(Map<String, List<Film>> films, String filename) {
 
-		StringBuilder overview = getHtmlTop();
+		StringBuilder overview = getHtmlTop(true);
 
 		String BECHDEL_BUTTON_DEFAULT = "Remove Films Not Passing Bechdel Test";
 		overview.append("<script>\n");
@@ -714,8 +741,8 @@ public class Main {
 		overview.append("</script>\n");
 		overview.append("<span id='bechdelButton' " +
 			"style='position:fixed; bottom:0px; right:-30px; cursor: pointer; font-weight: bold; " +
-			"background: radial-gradient(#FFF, #FFF, #FFF, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); " +
-			"padding: 5px 40px;' " +
+			"background: radial-gradient(#202, #202, #202, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); " +
+			"padding: 5px 40px; z-index: 10;' " +
 			"onclick='toggleBechdel();'>");
 		overview.append(BECHDEL_BUTTON_DEFAULT);
 		overview.append("</span>");
@@ -751,7 +778,7 @@ public class Main {
 
 	private static void saveFilmFile(Film film, Map<String, String> genreToKeyMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
 
-		StringBuilder overview = getHtmlTop();
+		StringBuilder overview = getHtmlTop(false);
 
 		overview.append("<div class='bracketTitle'>");
 		overview.append(HTML.escapeHTMLstr(film.getTitle()));
