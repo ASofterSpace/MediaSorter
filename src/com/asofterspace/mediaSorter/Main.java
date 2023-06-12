@@ -186,7 +186,9 @@ public class Main {
 					int curLine = j+2;
 					while (!"".equals(filmContents.get(curLine).trim())) {
 						String line = filmContents.get(curLine).trim();
-						if (line.startsWith("Trigger warning: ") || line.startsWith("Trigger warnings: ")) {
+						String lineLow = line.toLowerCase();
+						if (lineLow.startsWith("trigger warning: ") || lineLow.startsWith("trigger warnings: ") ||
+							lineLow.startsWith("content note: ") || lineLow.startsWith("content notes: ")) {
 							triggerText = line.substring(line.indexOf(": ") + 2).trim();
 						} else {
 							reviewText.append(line + " ");
@@ -462,7 +464,7 @@ public class Main {
 			i++;
 		}
 
-		saveOverview(genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES, genreToKeyMap);
+		saveOverview(films.size(), genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES, genreToKeyMap);
 
 
 
@@ -508,7 +510,7 @@ public class Main {
 			i++;
 		}
 
-		saveOverview(languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES, null);
+		saveOverview(films.size(), languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES, null);
 
 
 		// create overview sorted by date of addition to the database
@@ -560,7 +562,7 @@ public class Main {
 		return result;
 	}
 
-	private static StringBuilder getHtmlTop(boolean useFlatBackground) {
+	private static StringBuilder getHtmlTop(int filmAmount, boolean useFlatBackground) {
 
 		StringBuilder overview = new StringBuilder();
 
@@ -586,6 +588,18 @@ public class Main {
 		overview.append("}");
 		overview.append("div.film {");
 		overview.append("	padding: 4pt;");
+		overview.append("}");
+		overview.append("div.filmamount {");
+		overview.append("	position: absolute;");
+		overview.append("	left: 0;");
+		overview.append("	top: 18pt;");
+		overview.append("	font-size: 14pt;");
+		overview.append("	font-style: italic;");
+		overview.append("	color: #00EF50;");
+		overview.append("	font-family: \"Consolas\";");
+		overview.append("}");
+		overview.append("div.filminfo, div.linkcontainer, div.bracketTitle {");
+		overview.append("	position: relative;");
 		overview.append("}");
 		overview.append("img {");
 		overview.append("	width: 200pt;");
@@ -671,6 +685,9 @@ public class Main {
 		}
 		overview.append(">");
 		overview.append("<div class='linkcontainer'>");
+		overview.append("<div class='filmamount'>");
+		overview.append("// " + filmAmount + " //");
+		overview.append("</div>");
 		overview.append("<a class='toplink' href='" + OVERVIEW + ".htm'>ABC</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_ADDITION + ".htm'>Newest</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>Amazingness</a>");
@@ -682,9 +699,9 @@ public class Main {
 		return overview;
 	}
 
-	private static void saveOverview(List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr, Map<String, String> genreToKeyMap) {
+	private static void saveOverview(int filmAmount, List<String> genres, String filename, String overviewKind, String nullStr, String ovrStr, Map<String, String> genreToKeyMap) {
 
-		StringBuilder overview = getHtmlTop(false);
+		StringBuilder overview = getHtmlTop(filmAmount, false);
 
 		overview.append("<div class='bracketTitle'>");
 		overview.append("Select a " + overviewKind + ":");
@@ -719,7 +736,11 @@ public class Main {
 
 	private static void saveFilmsAsOverview(Map<String, List<Film>> films, String filename) {
 
-		StringBuilder overview = getHtmlTop(true);
+		int filmAmount = 0;
+		for (List<Film> filmList : films.values()) {
+			filmAmount += filmList.size();
+		}
+		StringBuilder overview = getHtmlTop(filmAmount, true);
 
 		String BECHDEL_BUTTON_DEFAULT = "Remove Films Not Passing Bechdel Test";
 		overview.append("<script>\n");
@@ -741,7 +762,7 @@ public class Main {
 		overview.append("</script>\n");
 		overview.append("<span id='bechdelButton' " +
 			"style='position:fixed; bottom:0px; right:-30px; cursor: pointer; font-weight: bold; " +
-			"background: radial-gradient(#202, #202, #202, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); " +
+			"background: radial-gradient(#202, #304, #202, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); " +
 			"padding: 5px 40px; z-index: 10;' " +
 			"onclick='toggleBechdel();'>");
 		overview.append(BECHDEL_BUTTON_DEFAULT);
@@ -753,6 +774,9 @@ public class Main {
 			List<Film> filmsInBracket = filmBracket.getValue();
 			overview.append("<a name='" + filmBracketLabel + "'></a>");
 			overview.append("<div class='bracketTitle'>");
+			overview.append("<div class='filmamount'>");
+			overview.append("// " + filmsInBracket.size() + " //");
+			overview.append("</div>");
 			overview.append(HTML.escapeHTMLstr(filmBracketLabel));
 			overview.append("</div>");
 
@@ -778,7 +802,7 @@ public class Main {
 
 	private static void saveFilmFile(Film film, Map<String, String> genreToKeyMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
 
-		StringBuilder overview = getHtmlTop(false);
+		StringBuilder overview = getHtmlTop(1, false);
 
 		overview.append("<div class='bracketTitle'>");
 		overview.append(HTML.escapeHTMLstr(film.getTitle()));
@@ -805,7 +829,7 @@ public class Main {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Trigger Warning: ");
+		overview.append("Content Note: ");
 		overview.append(HTML.escapeHTMLstr(film.getTriggerWarning()));
 		overview.append("</div>");
 
@@ -832,6 +856,9 @@ public class Main {
 
 		if (film.getRelatedMovies().size() > 0) {
 			overview.append("<div class='filminfo center'>");
+			overview.append("<div class='filmamount'>");
+			overview.append("// " + film.getRelatedMovies().size() + " //");
+			overview.append("</div>");
 			overview.append("Related Movies:");
 			overview.append("</div>");
 
@@ -841,6 +868,9 @@ public class Main {
 		// only show this if there are other movies, besides this one, with the same name
 		if (film.getSimilarlyNamedMovies().size() > 1) {
 			overview.append("<div class='filminfo center'>");
+			overview.append("<div class='filmamount'>");
+			overview.append("// " + film.getSimilarlyNamedMovies().size() + " //");
+			overview.append("</div>");
 			overview.append("Similarly Named Movies:");
 			overview.append("</div>");
 
