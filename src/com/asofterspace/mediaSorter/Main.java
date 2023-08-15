@@ -13,7 +13,6 @@ import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
 import com.asofterspace.toolbox.utils.Record;
 import com.asofterspace.toolbox.utils.StrUtils;
-import com.asofterspace.toolbox.utils.TextEncoding;
 import com.asofterspace.toolbox.Utils;
 
 import java.util.ArrayList;
@@ -30,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.7(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 7. May 2023";
+	public final static String VERSION_NUMBER = "0.0.1.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 15. August 2023";
 
 	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
 
@@ -104,7 +103,7 @@ public class Main {
 		}
 
 		SimpleFile vstpu = new SimpleFile(filmpath + "/VSTPU.stpu");
-		vstpu.setEncoding(TextEncoding.ISO_LATIN_1);
+		vstpu.setISOorUTFreadAndUTFwriteEncoding(true);
 		List<String> filmnames = vstpu.getContents();
 
 		// create statistics
@@ -129,7 +128,7 @@ public class Main {
 			}
 
 			SimpleFile film = new SimpleFile(filmpath + "/" + filmfilename + ".stpu");
-			film.setEncoding(TextEncoding.ISO_LATIN_1);
+			film.setISOorUTFreadAndUTFwriteEncoding(true);
 
 			// make some adjustments automatically
 			boolean madeChanges = false;
@@ -345,7 +344,7 @@ public class Main {
 
 		// save statistics
 		SimpleFile statsFile = new SimpleFile(filmpath + "/Statistics.stpu");
-		statsFile.setEncoding(TextEncoding.ISO_LATIN_1);
+		statsFile.setISOorUTFreadAndUTFwriteEncoding(true);
 		statsFile.saveContents(stats);
 
 		System.out.println("Saved new statistics for " + filmcounter + " films at " + statsFile.getCanonicalFilename() + "!");
@@ -573,7 +572,7 @@ public class Main {
 
 		// add header
 		overview.append("<head>");
-		overview.append("<meta charset=\"iso-8859-1\">");
+		overview.append("<meta charset=\"utf-8\">");
 		overview.append("<style>");
 		overview.append("body {");
 		overview.append("	background: linear-gradient(-29deg, #160022, #202, #11001A, #202, #201, #202, #202, #202, #11001A, #201, #202, #102, #101, #11001A, #202, #160022, #202, #11001A, #101, #11001A, #202);");
@@ -730,7 +729,6 @@ public class Main {
 
 		// save overview
 		SimpleFile overviewFile = new SimpleFile(filename);
-		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		overviewFile.saveContent(overview);
 	}
 
@@ -787,7 +785,6 @@ public class Main {
 
 		// save overview
 		SimpleFile overviewFile = new SimpleFile(filename);
-		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		overviewFile.saveContent(overview);
 	}
 
@@ -882,7 +879,6 @@ public class Main {
 
 		// save the file
 		SimpleFile overviewFile = new SimpleFile(filename);
-		overviewFile.setEncoding(TextEncoding.ISO_LATIN_1);
 		overviewFile.saveContent(overview);
 	}
 
