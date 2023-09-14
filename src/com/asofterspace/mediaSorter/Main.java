@@ -32,7 +32,7 @@ public class Main {
 	public final static String VERSION_NUMBER = "0.0.1.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
 	public final static String VERSION_DATE = "31. August 2019 - 15. August 2023";
 
-	private final static String[] TRY_PIC_ENDINGS = {"jpg", "jpeg", "gif", "png", "bmp"};
+	private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "bmp", "webp"};
 
 	private final static String OVERVIEW = "overview";
 	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
@@ -277,7 +277,7 @@ public class Main {
 				}
 			}
 
-			for (String ending : TRY_PIC_ENDINGS) {
+			for (String ending : IMAGE_EXTENSIONS) {
 				File prevFile = new File(filmpath + "/" + filmfilename + "_1." + ending);
 				if (prevFile.exists()) {
 					curFilm.setPreviewPic(filmfilename + "_1." + ending);
