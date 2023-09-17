@@ -168,12 +168,14 @@ public class FilmLocation {
 	private String checkExistence(String fileName) {
 		File mediaFile = new File(new Directory(fileLocationOrigin), fileName);
 		if (mediaFile.exists()) {
+			Main.foundMediaFileIn(mediaFile.getCanonicalFilename());
 			return fileLocationOrigin;
 		}
 
 		if (fileLocationOriginAlt != null) {
 			mediaFile = new File(new Directory(fileLocationOriginAlt), fileName);
 			if (mediaFile.exists()) {
+				Main.foundMediaFileIn(mediaFile.getCanonicalFilename());
 				return fileLocationOriginAlt;
 			}
 		}

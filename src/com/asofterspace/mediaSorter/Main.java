@@ -29,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.1.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 15. August 2023";
+	public final static String VERSION_NUMBER = "0.0.1.9(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 18. September 2023";
 
 	private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "bmp", "webp"};
 
@@ -45,6 +45,8 @@ public class Main {
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
 	private final static String PASSES_BECHDEL_STR = "Passes the Bechdel Test:";
+
+	private static List<String> filesFound = new ArrayList<>();
 
 
 	public static void main(String[] args) {
@@ -546,6 +548,32 @@ public class Main {
 		}
 
 		System.out.println("Saved individual film files!");
+
+
+		// check that all films are really encountered and none are missing from the list that do exist on the disk
+		List<String> filesThatShouldBeFound = new ArrayList<>();
+		addFilmsThatShouldBeFound(filesThatShouldBeFound, filmfileorigin);
+		addFilmsThatShouldBeFound(filesThatShouldBeFound, filmfileoriginalt);
+
+		for (String shouldBeFound : filesThatShouldBeFound) {
+
+			// ignore subtitle files, those are not directly encountered and explicitly tracked anyway
+			if (shouldBeFound.endsWith(".srt") ||
+				shouldBeFound.endsWith(".idx") ||
+				shouldBeFound.endsWith(".sub") ||
+				shouldBeFound.endsWith(".dfxp") ||
+				shouldBeFound.endsWith(".ass") ||
+				shouldBeFound.endsWith(".sup") ||
+				shouldBeFound.endsWith("Thumbs.db")) {
+				continue;
+			}
+
+			if (!filesFound.contains(shouldBeFound)) {
+				System.err.println("File '" + shouldBeFound + "' exists on the disk - but was not encountered!");
+			}
+		}
+
+		System.out.println("Performed file encounter checks!");
 	}
 
 	private static Integer getAmazingness(String str) {
@@ -889,6 +917,18 @@ public class Main {
 		}
 
 		return filmname;
+	}
+
+	private static void addFilmsThatShouldBeFound(List<String> filesThatShouldBeFound, String origin) {
+		Directory parentDir = new Directory(origin);
+		boolean recursively = true;
+		for (File file : parentDir.getAllFiles(recursively)) {
+			filesThatShouldBeFound.add(file.getCanonicalFilename());
+		}
+	}
+
+	public static void foundMediaFileIn(String location) {
+		filesFound.add(location);
 	}
 
 }
