@@ -514,16 +514,25 @@ public class Film {
 		overview.append("</div>");
 
 		overview.append(aHref);
-		if (this.getPreviewPic().contains("'")) {
-			overview.append("<img src=\"" + this.getPreviewPic() + "\"/>");
+		if (this.getPreviewPic() == null) {
+			System.out.println(this + " has no preview picture! Oh oh!");
 		} else {
-			overview.append("<img src='" + this.getPreviewPic() + "'/>");
+			if (this.getPreviewPic().contains("'")) {
+				overview.append("<img src=\"" + this.getPreviewPic() + "\"/>");
+			} else {
+				overview.append("<img src='" + this.getPreviewPic() + "'/>");
+			}
 		}
 		overview.append("<div class='imgsurrounder'>");
 		overview.append("</div>");
 		overview.append("</a>");
 
 		overview.append("</div>");
+	}
+
+	@Override
+	public String toString() {
+		return "Film [title: " + this.title + ", filename: " + this.filename + "]";
 	}
 
 }
