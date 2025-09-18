@@ -29,8 +29,8 @@ import java.util.TreeMap;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.2.0(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 21. January 2024";
+	public final static String VERSION_NUMBER = "0.0.2.1(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 18. September 2025";
 
 	private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "bmp", "webp"};
 
@@ -553,7 +553,9 @@ public class Main {
 		// check that all films are really encountered and none are missing from the list that do exist on the disk
 		List<String> filesThatShouldBeFound = new ArrayList<>();
 		addFilmsThatShouldBeFound(filesThatShouldBeFound, filmfileorigin);
-		addFilmsThatShouldBeFound(filesThatShouldBeFound, filmfileoriginalt);
+		if ((filmfileoriginalt != null) && (!filmfileoriginalt.equals(""))) {
+			addFilmsThatShouldBeFound(filesThatShouldBeFound, filmfileoriginalt);
+		}
 
 		for (String shouldBeFound : filesThatShouldBeFound) {
 
