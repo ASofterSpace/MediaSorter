@@ -4,7 +4,6 @@
  */
 package com.asofterspace.mediaSorter.movies;
 
-import com.asofterspace.mediaSorter.Database;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -40,14 +39,14 @@ public class MovieSorter {
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
 	private final static String PASSES_BECHDEL_STR = "Passes the Bechdel Test:";
 
-	private Database database;
+	private MovieDatabase database;
 
 	private ConfigFile config;
 
 	private List<String> filesFound = new ArrayList<>();
 
 
-	public MovieSorter(Database database, ConfigFile config) {
+	public MovieSorter(MovieDatabase database, ConfigFile config) {
 		this.database = database;
 		this.config = config;
 	}

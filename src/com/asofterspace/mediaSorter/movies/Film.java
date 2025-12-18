@@ -4,7 +4,6 @@
  */
 package com.asofterspace.mediaSorter.movies;
 
-import com.asofterspace.mediaSorter.Database;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
 import com.asofterspace.toolbox.utils.DateUtils;
@@ -139,7 +138,7 @@ public class Film {
 
 	// if the database has this film, take the database's value for addition date
 	// if not, take this date and store it in the database
-	public void consolidateAdditionDateWithDatabase(Database database) {
+	public void consolidateAdditionDateWithDatabase(MovieDatabase database) {
 		Date dbDate = database.getFilmDate(title);
 		if (dbDate == null) {
 			database.storeFilmDate(title, additionDate);

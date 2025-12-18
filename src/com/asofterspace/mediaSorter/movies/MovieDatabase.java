@@ -2,7 +2,7 @@
  * Unlicensed code created by A Softer Space, 2020
  * www.asofterspace.com/licenses/unlicense.txt
  */
-package com.asofterspace.mediaSorter;
+package com.asofterspace.mediaSorter.movies;
 
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.JSON;
@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class Database {
+public class MovieDatabase {
 
-	private static final String DB_FILE_NAME = "database.json";
+	private static final String DB_FILE_NAME = "movieDatabase.json";
 
 	private Directory dataDir;
 
@@ -28,7 +28,7 @@ public class Database {
 	private Map<String, Date> filmDates;
 
 
-	public Database(Directory dataDir) {
+	public MovieDatabase(Directory dataDir) {
 
 		this.dataDir = dataDir;
 

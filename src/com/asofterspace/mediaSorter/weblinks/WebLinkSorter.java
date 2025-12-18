@@ -4,18 +4,17 @@
  */
 package com.asofterspace.mediaSorter.weblinks;
 
-import com.asofterspace.mediaSorter.Database;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 
 
 public class WebLinkSorter {
 
-	private Database database;
+	private WebLinkDatabase database;
 
 	private ConfigFile config;
 
 
-	public WebLinkSorter(Database database, ConfigFile config) {
+	public WebLinkSorter(WebLinkDatabase database, ConfigFile config) {
 		this.database = database;
 		this.config = config;
 	}
@@ -30,6 +29,7 @@ public class WebLinkSorter {
 		// workbench: load JSON of entries directly
 		// workbench: load snailed JSON
 		// /data/ for video sources, podcasts etc. (search .txt files in there)
+		// manual sources (a json file where we just add sources / references directly)
 
 		// for each:
 		// check if there are links in there (starting with http:// or https://)

@@ -4,7 +4,9 @@
  */
 package com.asofterspace.mediaSorter;
 
+import com.asofterspace.mediaSorter.movies.MovieDatabase;
 import com.asofterspace.mediaSorter.movies.MovieSorter;
+import com.asofterspace.mediaSorter.weblinks.WebLinkDatabase;
 import com.asofterspace.mediaSorter.weblinks.WebLinkSorter;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
@@ -53,7 +55,6 @@ public class Main {
 		}
 
 		Directory confDir = new Directory("config");
-		Database database = new Database(confDir);
 
 		ConfigFile config = null;
 
@@ -72,11 +73,13 @@ public class Main {
 		}
 
 		if (sortMovies) {
+			MovieDatabase database = new MovieDatabase(confDir);
 			MovieSorter movieSorter = new MovieSorter(database, config);
 			movieSorter.run();
 		}
 
 		if (sortWeblinks) {
+			WebLinkDatabase database = new WebLinkDatabase(confDir);
 			WebLinkSorter webLinkSorter = new WebLinkSorter(database, config);
 			webLinkSorter.run();
 		}
