@@ -2,8 +2,9 @@
  * Unlicensed code created by A Softer Space, 2020
  * www.asofterspace.com/licenses/unlicense.txt
  */
-package com.asofterspace.mediaSorter;
+package com.asofterspace.mediaSorter.movies;
 
+import com.asofterspace.mediaSorter.Database;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
 import com.asofterspace.toolbox.utils.DateUtils;
@@ -152,7 +153,7 @@ public class Film {
 	}
 
 	private String toGenreLink(String genreStr, String key, Map<String, String> genreToKeyMap) {
-		return "<a href='" + Main.OVERVIEW_BY_GENRES + "_" +
+		return "<a href='" + MovieSorter.OVERVIEW_BY_GENRES + "_" +
 				genreToKeyMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(genreStr) + "</a>";
 	}
 
@@ -442,7 +443,7 @@ public class Film {
 				if (langStr.contains(language)) {
 					langStr = langStr.replace(
 						language,
-						"<a href='" + Main.OVERVIEW_BY_LANGUAGES + langToNumberMap.get(language) + ".htm'>" + language + "</a>"
+						"<a href='" + MovieSorter.OVERVIEW_BY_LANGUAGES + langToNumberMap.get(language) + ".htm'>" + language + "</a>"
 					);
 				}
 			}
@@ -473,7 +474,7 @@ public class Film {
 	}
 
 	public void appendAsHtmlToOverview(StringBuilder overview) {
-		String aHref = "<a href='" + Main.OVERVIEW_FILM + "_" + this.getNumber() + ".htm'>";
+		String aHref = "<a href='" + MovieSorter.OVERVIEW_FILM + "_" + this.getNumber() + ".htm'>";
 
 		Boolean bechdelTrueOrFalseOnly = this.getBechdel();
 		if (bechdelTrueOrFalseOnly == null) {

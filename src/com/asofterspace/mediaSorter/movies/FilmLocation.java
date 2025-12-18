@@ -2,7 +2,7 @@
  * Unlicensed code created by A Softer Space, 2020
  * www.asofterspace.com/licenses/unlicense.txt
  */
-package com.asofterspace.mediaSorter;
+package com.asofterspace.mediaSorter.movies;
 
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -18,6 +18,7 @@ public class FilmLocation {
 	private Film film;
 	private String fileLocationOrigin;
 	private String fileLocationOriginAlt;
+	private MovieSorter movieSorter;
 
 	private String languageStr;
 	private List<String> languages;
@@ -28,10 +29,11 @@ public class FilmLocation {
 	private List<String> locationStrs;
 
 
-	public FilmLocation(Film film, String fileLocationOrigin, String fileLocationOriginAlt) {
+	public FilmLocation(Film film, String fileLocationOrigin, String fileLocationOriginAlt, MovieSorter movieSorter) {
 		this.film = film;
 		this.fileLocationOrigin = fileLocationOrigin;
 		this.fileLocationOriginAlt = fileLocationOriginAlt;
+		this.movieSorter = movieSorter;
 		this.locationStrs = new ArrayList<>();
 		this.languages = new ArrayList<>();
 	}
@@ -170,14 +172,14 @@ public class FilmLocation {
 	private String checkExistence(String fileName) {
 		File mediaFile = new File(new Directory(fileLocationOrigin), fileName);
 		if (mediaFile.exists()) {
-			Main.foundMediaFileIn(mediaFile.getCanonicalFilename());
+			movieSorter.foundMediaFileIn(mediaFile.getCanonicalFilename());
 			return fileLocationOrigin;
 		}
 
 		if (fileLocationOriginAlt != null) {
 			mediaFile = new File(new Directory(fileLocationOriginAlt), fileName);
 			if (mediaFile.exists()) {
-				Main.foundMediaFileIn(mediaFile.getCanonicalFilename());
+				movieSorter.foundMediaFileIn(mediaFile.getCanonicalFilename());
 				return fileLocationOriginAlt;
 			}
 		}
