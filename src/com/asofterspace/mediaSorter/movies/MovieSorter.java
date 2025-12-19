@@ -8,6 +8,8 @@ import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
+import com.asofterspace.toolbox.io.JSON;
+import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
 import com.asofterspace.toolbox.utils.Record;
 import com.asofterspace.toolbox.utils.StrUtils;
@@ -46,9 +48,23 @@ public class MovieSorter {
 	private List<String> filesFound = new ArrayList<>();
 
 
-	public MovieSorter(MovieDatabase database, ConfigFile config) {
+	public MovieSorter(MovieDatabase database) {
 		this.database = database;
-		this.config = config;
+		this.config = null;
+
+		try {
+			// load config
+			config = new ConfigFile("movieSettings", true);
+
+			// create a default config file, if necessary
+			if (config.getAllContents().isEmpty()) {
+				config.setAllContents(new JSON("{\"filmpath\":\"\", \"filmfileorigin\":\"\"}"));
+			}
+		} catch (JsonParseException e) {
+			System.err.println("Loading the movie settings failed:");
+			System.err.println(e);
+			System.exit(1);
+		}
 	}
 
 	public void run() {

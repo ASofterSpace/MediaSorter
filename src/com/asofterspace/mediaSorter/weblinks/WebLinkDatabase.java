@@ -50,6 +50,10 @@ public class WebLinkDatabase {
 		}
 	}
 
+	public List<WebLink> getManuallyStoredLinks() {
+		return manuallyStoredLinks;
+	}
+
 	public void save() {
 
 		root.makeObject();
@@ -63,4 +67,5 @@ public class WebLinkDatabase {
 		dbFile.setAllContents(root);
 		dbFile.save();
 	}
+
 }

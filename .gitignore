@@ -36,3 +36,4 @@ config
 # input / output files
 *.stp
 *.stpu
+output

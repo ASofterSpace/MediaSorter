@@ -8,11 +8,7 @@ import com.asofterspace.mediaSorter.movies.MovieDatabase;
 import com.asofterspace.mediaSorter.movies.MovieSorter;
 import com.asofterspace.mediaSorter.weblinks.WebLinkDatabase;
 import com.asofterspace.mediaSorter.weblinks.WebLinkSorter;
-import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
-import com.asofterspace.toolbox.io.File;
-import com.asofterspace.toolbox.io.JSON;
-import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.Utils;
 
 
@@ -56,31 +52,15 @@ public class Main {
 
 		Directory confDir = new Directory("config");
 
-		ConfigFile config = null;
-
-		try {
-			// load config
-			config = new ConfigFile("settings", true);
-
-			// create a default config file, if necessary
-			if (config.getAllContents().isEmpty()) {
-				config.setAllContents(new JSON("{\"filmpath\":\"\", \"filmfileorigin\":\"\"}"));
-			}
-		} catch (JsonParseException e) {
-			System.err.println("Loading the settings failed:");
-			System.err.println(e);
-			System.exit(1);
-		}
-
 		if (sortMovies) {
 			MovieDatabase database = new MovieDatabase(confDir);
-			MovieSorter movieSorter = new MovieSorter(database, config);
+			MovieSorter movieSorter = new MovieSorter(database);
 			movieSorter.run();
 		}
 
 		if (sortWeblinks) {
 			WebLinkDatabase database = new WebLinkDatabase(confDir);
-			WebLinkSorter webLinkSorter = new WebLinkSorter(database, config);
+			WebLinkSorter webLinkSorter = new WebLinkSorter(database);
 			webLinkSorter.run();
 		}
 	}
