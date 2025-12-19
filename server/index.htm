@@ -1,0 +1,109 @@
+<html>
+<head>
+	<script src="data.js"></script>
+	<style>
+		h2 {
+			font-size: 120%;
+		}
+		div#searchBar > input {
+			width: 80%;
+			display: inline;
+		}
+		div#searchBar > button {
+			width: 15%;
+			display: inline;
+			float: right;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="searchBar">
+		<input type="text" id="searchField"></input>
+		<button onclick="doSearch();">Search</button>
+	</div>
+
+	<div id="outputArea">
+	</div>
+
+	<div style="padding-top: 20pt;">
+		Status: <span id="statusLabel">Loading data...</span>
+	</div>
+
+<script>
+window.data = {
+
+};
+
+// transforms https://www.foo.org/bar?foo=bar
+// info foo.org/bar
+window.normalizeURI = function(uri) {
+	uri = uri.toLowerCase();
+	if (uri.indexOf("https://") == 0) {
+		uri = uri.substring(8);
+	}
+	if (uri.indexOf("http://") == 0) {
+		uri = uri.substring(7);
+	}
+	if (uri.indexOf("www.") == 0) {
+		uri = uri.substring(4);
+	}
+	var questIndex = uri.indexOf("?");
+	if (questIndex >= 0) {
+		uri = uri.substring(0, questIndex);
+	}
+	return uri;
+};
+
+window.doSearch = function() {
+	var needle = document.getElementById("searchField").value;
+	needle = normalizeURI(needle);
+	var htmlSources = "";
+	var htmlRefs = "";
+	for (var i = 0; i < data.links.length; i++) {
+		var curLink = data.links[i];
+		if (curLink.u.indexOf(needle) == 0) {
+			for (var si = 0; si < curLink.s.length; si++) {
+				htmlSources += "<div>" + curLink.s[si] + "</div>";
+			}
+			for (var ri = 0; ri < curLink.r.length; ri++) {
+				htmlRefs += "<div>" + curLink.r[ri] + "</div>";
+			}
+		}
+	}
+	html = ""
+	if (htmlSources.length > 0) {
+		html += "<h2>Sources:</h2>" + htmlSources;
+	}
+	if (htmlRefs.length > 0) {
+		html += "<h2>References:</h2>" + htmlRefs;
+	}
+	if (html.length == 0) {
+		html = "The URL cannot be found in our archive :/";
+	}
+	document.getElementById("outputArea").innerHTML = html;
+};
+
+// load and normalize all links
+window.attemptToLoadData = function() {
+	if (window.links) {
+		var loadedLinks = [];
+		for (var i = 0; i < window.links.length; i++) {
+			var curLink = window.links[i];
+			curLink.u = normalizeURI(curLink.u);
+			loadedLinks.push(curLink);
+		}
+		window.data.links = loadedLinks;
+
+		var statusLabel = document.getElementById("statusLabel");
+		statusLabel.innerText = "Ready";
+	} else {
+		window.setTimeout(attemptToLoadData, 1000);
+	}
+};
+
+window.setTimeout(attemptToLoadData, 1000);
+</script>
+</body>
+</html>

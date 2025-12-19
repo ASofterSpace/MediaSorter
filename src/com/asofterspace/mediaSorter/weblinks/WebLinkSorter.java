@@ -72,16 +72,7 @@ public class WebLinkSorter {
 
 		// write all findings into a JavaScript file that is then loaded by a static viewer HTML file that
 		// allows searching for URLs and returns the best matches
-
-		Directory outputDir = new Directory("output");
-		TextFile dataFile = new TextFile(outputDir, "data.js");
-		StringBuilder dataOut = new StringBuilder();
-		dataOut.append("links = [");
-		for (WebLink link : links) {
-			link.appendTo(dataOut);
-		}
-		dataOut.append("];");
-		dataFile.saveContent(dataOut.toString());
+		writeLinksToOutputFile(links);
 
 		System.out.println("Weblink sorting done!");
 	}
@@ -183,6 +174,26 @@ public class WebLinkSorter {
 		}
 
 		return result;
+	}
+
+	private void writeLinksToOutputFile(List<WebLink> links) {
+
+		Directory serverDir = new Directory("server");
+		Directory outputDir = new Directory("output");
+
+		// generate index file - just statically the one from the server dir
+		File indexFile = new File(serverDir, "index.htm");
+		indexFile.copyToDisk(outputDir);
+
+		// generate data file
+		TextFile dataFile = new TextFile(outputDir, "data.js");
+		StringBuilder dataOut = new StringBuilder();
+		dataOut.append("window.links = [");
+		for (WebLink link : links) {
+			link.appendTo(dataOut);
+		}
+		dataOut.append("];");
+		dataFile.saveContent(dataOut.toString());
 	}
 
 }
