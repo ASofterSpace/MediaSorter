@@ -32,6 +32,18 @@
 		button:hover {
 			background: #337;
 		}
+		a {
+			color: rgb(136, 170, 255);
+			text-decoration: none;
+		}
+		a:visited {
+			color: rgb(170, 136, 255);
+			text-decoration: none;
+		}
+		a:hover {
+			color: rgb(156, 208, 255);
+			text-decoration: underline;
+		}
 		div#searchBar > input {
 			width: 80%;
 			display: inline;
@@ -158,21 +170,37 @@ window.doSearch = function() {
 		}
 	}
 
-	// assemble results
-	var htmlSources = "";
-	var htmlRefs = "";
+	// sort results
+	var foundSources = [];
+	var foundReferences = [];
 	for (var i = 0; i < foundLinks.length; i++) {
 		var curLink = foundLinks[i];
 		for (var si = 0; si < curLink.s.length; si++) {
-			htmlSources += "<div>";
-			htmlSources += displayLocalLink(curLink.s[si]);
-			htmlSources += "</div>";
+			if (!foundSources.includes(curLink.s[si])) {
+				foundSources.push(curLink.s[si]);
+			}
 		}
 		for (var ri = 0; ri < curLink.r.length; ri++) {
-			htmlRefs += "<div>";
-			htmlRefs += displayLocalLink(curLink.r[ri]);
-			htmlRefs += "</div>";
+			if (!foundReferences.includes(curLink.r[ri])) {
+				foundReferences.push(curLink.r[ri]);
+			}
 		}
+	}
+	foundSources.sort();
+	foundReferences.sort();
+
+	// assemble results
+	var htmlSources = "";
+	var htmlRefs = "";
+	for (var i = 0; i < foundSources.length; i++) {
+		htmlSources += "<div>";
+		htmlSources += displayLocalLink(foundSources[i]);
+		htmlSources += "</div>";
+	}
+	for (var i = 0; i < foundReferences.length; i++) {
+		htmlRefs += "<div>";
+		htmlRefs += displayLocalLink(foundReferences[i]);
+		htmlRefs += "</div>";
 	}
 
 	var html = ""
