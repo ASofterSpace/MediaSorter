@@ -55,7 +55,7 @@ public class WebLink {
 	}
 
 	private String escape(String str) {
-		return StrUtils.replaceAll(str, "\"", "\\\"");
+		return StrUtils.replaceAll(StrUtils.replaceAll(str, "\"", "\\\""), "\\\\\"", "\\\"");
 	}
 
 	public void addSource(String newSource) {

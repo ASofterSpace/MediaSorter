@@ -1,5 +1,10 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+	<meta charset="utf-8">
+	<title>Link Archive</title>
+	<meta name="keywords" content="link,archive,search">
+	<meta name="description" content="Our link archive, which allows lookup / search for known archived links.">
 	<script src="data.js"></script>
 	<style>
 		h2 {
@@ -56,23 +61,93 @@ window.normalizeURI = function(uri) {
 	return uri;
 };
 
+window.displayLocalLink = function(linkStr) {
+	if ((linkStr.indexOf("http://") == 0) || (linkStr.indexOf("https://") == 0) ||
+		(linkStr.indexOf("file://") == 0)) {
+		return "<a href=\"" + linkStr + "\" target=\"_blank\">" + decodeURIComponent(linkStr) + "</a>";
+	}
+	return linkStr;
+};
+
 window.doSearch = function() {
 	var needle = document.getElementById("searchField").value;
-	needle = normalizeURI(needle);
-	var htmlSources = "";
-	var htmlRefs = "";
-	for (var i = 0; i < data.links.length; i++) {
-		var curLink = data.links[i];
-		if (curLink.u.indexOf(needle) == 0) {
-			for (var si = 0; si < curLink.s.length; si++) {
-				htmlSources += "<div>" + curLink.s[si] + "</div>";
+	var foundLinks = [];
+
+	/*
+	// search for links
+	if (needle.indexOf("*") == 0) {
+		needle = needle.substring(1);
+		if (needle.lastIndexOf("*") == needle.length - 1) {
+			// *needle*: contains needle
+			needle = needle.substring(0, needle.length - 1);
+			needle = normalizeURI(needle);
+			for (var i = 0; i < data.links.length; i++) {
+				var curLink = data.links[i];
+				if (curLink.u.indexOf(needle) >= 0) {
+					foundLinks.push(curLink);
+				}
 			}
-			for (var ri = 0; ri < curLink.r.length; ri++) {
-				htmlRefs += "<div>" + curLink.r[ri] + "</div>";
+		} else {
+			// *needle: ends with needle
+			needle = normalizeURI(needle);
+			for (var i = 0; i < data.links.length; i++) {
+				var curLink = data.links[i];
+				if (curLink.u.lastIndexOf(needle) == curLink.u.length - needle.length) {
+					foundLinks.push(curLink);
+				}
+			}
+		}
+	} else {
+		if (needle.lastIndexOf("*") == needle.length - 1) {
+			// needle*: starts with needle
+			needle = needle.substring(0, needle.length - 1);
+			needle = normalizeURI(needle);
+			for (var i = 0; i < data.links.length; i++) {
+				var curLink = data.links[i];
+				if (curLink.u.indexOf(needle) == 0) {
+					foundLinks.push(curLink);
+				}
+			}
+		} else {
+			// needle: is exactly needle
+			needle = normalizeURI(needle);
+			for (var i = 0; i < data.links.length; i++) {
+				var curLink = data.links[i];
+				if (curLink.u == needle) {
+					foundLinks.push(curLink);
+				}
 			}
 		}
 	}
-	html = ""
+	*/
+
+	// actually - just always check *needle*, no need to enter asterisks ^^'
+	needle = normalizeURI(needle);
+	for (var i = 0; i < data.links.length; i++) {
+		var curLink = data.links[i];
+		if (curLink.u.indexOf(needle) >= 0) {
+			foundLinks.push(curLink);
+		}
+	}
+
+	// assemble results
+	var htmlSources = "";
+	var htmlRefs = "";
+	for (var i = 0; i < foundLinks.length; i++) {
+		var curLink = foundLinks[i];
+		for (var si = 0; si < curLink.s.length; si++) {
+			htmlSources += "<div>";
+			htmlSources += displayLocalLink(curLink.s[si]);
+			htmlSources += "</div>";
+		}
+		for (var ri = 0; ri < curLink.r.length; ri++) {
+			htmlRefs += "<div>";
+			htmlRefs += displayLocalLink(curLink.r[ri]);
+			htmlRefs += "</div>";
+		}
+	}
+
+	var html = ""
 	if (htmlSources.length > 0) {
 		html += "<h2>Sources:</h2>" + htmlSources;
 	}
@@ -102,6 +177,15 @@ window.attemptToLoadData = function() {
 		window.setTimeout(attemptToLoadData, 1000);
 	}
 };
+
+var searchFieldElem = document.getElementById('searchField');
+if (searchFieldElem) {
+	searchFieldElem.onkeydown = function(event){
+		if (event.key === 'Enter') {
+			doSearch()
+		}
+	};
+}
 
 window.setTimeout(attemptToLoadData, 1000);
 </script>

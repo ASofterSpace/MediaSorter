@@ -4,10 +4,12 @@
  */
 package com.asofterspace.mediaSorter.weblinks;
 
+import com.asofterspace.toolbox.coders.UrlEncoder;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.JSON;
+import com.asofterspace.toolbox.io.JsonFile;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.TextFile;
 
@@ -17,11 +19,19 @@ import java.util.List;
 
 public class WebLinkSorter {
 
+	private final static String KEY_ASS_BROWSER_BASE_PATH = "assBrowserBasePath";
+	private final static String KEY_ASS_WORKBENCH_BASE_PATH = "assWorkbenchBasePath";
+	private final static String KEY_ASS_WORKBENCH_LOCAL_LOG_PATH = "assWorkbenchLocalLogPath";
 	private final static String KEY_DIRS_WITH_TXT_SOURCE_FILES = "directoriesWithTextSourceFiles";
+	private final static String KEY_DIRS_WITH_STPU_SOURCE_FILES = "directoriesWithStpuSourceFiles";
 
 	private WebLinkDatabase database;
 
 	private ConfigFile config;
+
+	private String assBrowserBasePath;
+	private String assWorkbenchBasePath;
+	private String assWorkbenchLocalLogPath;
 
 
 	public WebLinkSorter(WebLinkDatabase database) {
@@ -34,13 +44,20 @@ public class WebLinkSorter {
 
 			// create a default config file, if necessary
 			if (config.getAllContents().isEmpty()) {
-				config.setAllContents(new JSON("{\"" + KEY_DIRS_WITH_TXT_SOURCE_FILES + "\":[]}"));
+				config.setAllContents(new JSON(
+					"{\"" + KEY_DIRS_WITH_TXT_SOURCE_FILES + "\":[]," +
+					"\"" + KEY_DIRS_WITH_STPU_SOURCE_FILES + "\\:[]}"
+				));
 			}
 		} catch (JsonParseException e) {
 			System.err.println("Loading the weblink settings failed:");
 			System.err.println(e);
 			System.exit(1);
 		}
+
+		assBrowserBasePath = config.getValue(KEY_ASS_BROWSER_BASE_PATH);
+		assWorkbenchBasePath = config.getValue(KEY_ASS_WORKBENCH_BASE_PATH);
+		assWorkbenchLocalLogPath = config.getValue(KEY_ASS_WORKBENCH_LOCAL_LOG_PATH);
 	}
 
 	public void run() {
@@ -54,19 +71,15 @@ public class WebLinkSorter {
 		// add links from /data/ for video sources, podcasts etc. (search .txt files in there)
 		links.addAll(getLinksFromDirectoriesWithTextSourceFiles());
 
+		// add links from Desktop (search .stpu files in there)
+		links.addAll(getLinksFromDirectoriesWithStpuSourceFiles());
 
-		// TODO
+		// add links from Workbench (search .json files in there)
+		links.addAll(getLinksWorkbenchSourceFiles());
 
-		// run through:
-		// /Desktop/ and open all .stpu files
-		// workbench: load JSON of entries directly
+
+		// TODO run through:
 		// workbench: load snailed JSON
-
-		// for each:
-		// check if there are links in there (starting with http:// or https://)
-		// strip links of tracking info, then store
-		// if link is preceded by source: above (so going lines up until an empty line is encountered),
-		// then store as main source, otherwise as mentioned
 
 		links = integrateLinks(links);
 
@@ -100,7 +113,7 @@ public class WebLinkSorter {
 		List<String> dirPaths = config.getList(KEY_DIRS_WITH_TXT_SOURCE_FILES);
 
 		for (String dirPath : dirPaths) {
-			System.out.println("Checking directory " + dirPath + " for web links...");
+			System.out.println("Checking directory " + dirPath + " for web links in TXT files...");
 			Directory curDir = new Directory(dirPath);
 			String endStr = ".txt";
 			boolean recursively = true;
@@ -115,8 +128,73 @@ public class WebLinkSorter {
 		return result;
 	}
 
+	private List<WebLink> getLinksFromDirectoriesWithStpuSourceFiles() {
+
+		List<WebLink> result = new ArrayList<>();
+		List<String> dirPaths = config.getList(KEY_DIRS_WITH_STPU_SOURCE_FILES);
+
+		for (String dirPath : dirPaths) {
+			System.out.println("Checking directory " + dirPath + " for web links in STPU files...");
+			Directory curDir = new Directory(dirPath);
+			String endStr = ".stpu";
+			boolean recursively = true;
+			List<File> textFiles = curDir.getAllFilesEndingWith(endStr, recursively);
+			for (File curFile : textFiles) {
+				String localFileName = curFile.getLocalFilename();
+				if (!"VSTPU.stpu".equals(localFileName)) {
+					TextFile textFile = new TextFile(curFile);
+					String content = textFile.getContent();
+					String localLocation =
+						assBrowserBasePath + "?path=" +
+						UrlEncoder.encodePath(textFile.getParentDirectory().getDirname()) +
+						"&file=" + UrlEncoder.encodePath(localFileName);
+					result.addAll(getLinksFromText(content, localLocation));
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private List<WebLink> getLinksWorkbenchSourceFiles() {
+
+		List<WebLink> result = new ArrayList<>();
+
+		System.out.println("Checking directory " + assWorkbenchLocalLogPath + " for web links in JSON files...");
+		Directory curDir = new Directory(assWorkbenchLocalLogPath);
+		String endStr = ".json";
+		boolean recursively = false;
+		List<File> textFiles = curDir.getAllFilesEndingWith(endStr, recursively);
+		for (File curFile : textFiles) {
+			String localFileName = curFile.getLocalFilename();
+			JsonFile jsonFile = new JsonFile(curFile);
+			try {
+				JSON json = jsonFile.getAllContents();
+				String content = json.getString("content");
+				if (content != null) {
+					Integer id = json.getInteger("id");
+					String project = json.getString("project");
+					String localLocation =
+						assWorkbenchBasePath + "projects/" + project + "/?open=logbook&id=" + id;
+					result.addAll(getLinksFromText(content, localLocation));
+				}
+			} catch (JsonParseException e) {
+				// ignore this file
+			}
+		}
+
+		return result;
+	}
+
+	// for each:
+	// check if there are links in there (starting with http:// or https://)
+	// strip links of tracking info, then store
+	// if link is preceded by source: above (so going lines up until an empty line is encountered),
+	// then store as actual source for the link, otherwise as reference to it
 	private List<WebLink> getLinksFromText(String text, String localLocation) {
 		List<WebLink> result = new ArrayList<>();
+		List<String> urisAlreadyAdded = new ArrayList<>();
+		String emptyLineMarker = "\n\n";
 
 		for (int sCount = 0; sCount < 2; sCount++) {
 			String curLinkStartStr = "http://";
@@ -124,6 +202,19 @@ public class WebLinkSorter {
 				curLinkStartStr = "https://";
 			}
 			int index = text.indexOf(curLinkStartStr);
+
+			// only if we find anything of interest...
+			if (index > 0) {
+				// ... if the text does contain nonsense line endings ...
+				if (text.contains("\r")) {
+					// ... just replace them with linuxy line endings
+					// (don't properly convert but replace in-line for simplicity)
+					text = text.replace('\r', '\n');
+					// and then each newline will be \n\n, so an empty line will be \n\n\n\n
+					emptyLineMarker = "\n\n\n\n";
+				}
+			}
+
 			while (index > 0) {
 				index += curLinkStartStr.length();
 				int nextSpace = text.indexOf(" ", index);
@@ -153,22 +244,26 @@ public class WebLinkSorter {
 					endOfLink = nextQuestMark;
 				}
 				String uri = text.substring(index, endOfLink).trim();
-				WebLink newLink = new WebLink(uri);
-				// check if in a previous line we have the text "source:" to
-				// determine whether this is a source or just a reference -
-				// but just up to an empty line, so that if there is a link
-				// far later it is again just classified as reference
-				int prevEmptyLine = text.lastIndexOf("\n\n", index);
-				if (prevEmptyLine < 0) {
-					prevEmptyLine = 0;
+				// ensure link is just added once even if is several times in the text
+				if (!urisAlreadyAdded.contains(uri)) {
+					urisAlreadyAdded.add(uri);
+					WebLink newLink = new WebLink(uri);
+					// check if in a previous line we have the text "source:" to
+					// determine whether this is a source or just a reference -
+					// but just up to an empty line, so that if there is a link
+					// far later it is again just classified as reference
+					int prevEmptyLine = text.lastIndexOf(emptyLineMarker, index);
+					if (prevEmptyLine < 0) {
+						prevEmptyLine = 0;
+					}
+					int sourceIndex = text.indexOf("source:", prevEmptyLine);
+					if ((sourceIndex >= 0) && (sourceIndex < index)) {
+						newLink.addSource(localLocation);
+					} else {
+						newLink.addReference(localLocation);
+					}
+					result.add(newLink);
 				}
-				int sourceIndex = text.indexOf("source:", prevEmptyLine);
-				if ((sourceIndex >= 0) && (sourceIndex < index)) {
-					newLink.addSource(localLocation);
-				} else {
-					newLink.addReference(localLocation);
-				}
-				result.add(newLink);
 				index = text.indexOf(curLinkStartStr, index);
 			}
 		}
