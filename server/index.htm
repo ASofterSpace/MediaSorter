@@ -7,8 +7,30 @@
 	<meta name="description" content="Our link archive, which allows lookup / search for known archived links.">
 	<script src="data.js"></script>
 	<style>
+		body {
+			background: linear-gradient(-44deg, #160022, #202, #11001A, #202, #201, #202, #222, #202, #11001A, #201, #202, #112, #101, #11001A, #202, #160022, #212, #11001A, #101, #11001A, #202);
+			color: rgb(136, 170, 255);
+			min-height: 1024px;
+		}
 		h2 {
 			font-size: 120%;
+		}
+		input {
+			color: rgb(136, 170, 255);
+			background: #202;
+			border: 1px #55F solid;
+			border-radius: 5pt;
+		}
+		button {
+			color: rgb(146, 190, 255);
+			background: #225;
+			border: 1px #55F solid;
+			border-radius: 5pt;
+			cursor: pointer;
+			margin-top: 1pt;
+		}
+		button:hover {
+			background: #337;
 		}
 		div#searchBar > input {
 			width: 80%;
@@ -18,6 +40,12 @@
 			width: 15%;
 			display: inline;
 			float: right;
+		}
+		div#statusBar {
+			font-size: 10pt;
+			font-style: italic;
+			color: #0D0;
+			font-family: "Courier New";
 		}
 	</style>
 </head>
@@ -32,7 +60,7 @@
 	<div id="outputArea">
 	</div>
 
-	<div style="padding-top: 20pt;">
+	<div style="padding-top: 20pt;" id="statusBar">
 		Status: <span id="statusLabel">Loading data...</span>
 	</div>
 
@@ -182,7 +210,7 @@ var searchFieldElem = document.getElementById('searchField');
 if (searchFieldElem) {
 	searchFieldElem.onkeydown = function(event){
 		if (event.key === 'Enter') {
-			doSearch()
+			doSearch();
 		}
 	};
 }

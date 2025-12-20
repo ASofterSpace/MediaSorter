@@ -175,7 +175,7 @@ public class WebLinkSorter {
 					Integer id = json.getInteger("id");
 					String project = json.getString("project");
 					String localLocation =
-						assWorkbenchBasePath + "projects/" + project + "/?open=logbook&id=" + id;
+						assWorkbenchBasePath + "/projects/" + project + "/?open=logbook&id=" + id;
 					result.addAll(getLinksFromText(content, localLocation));
 				}
 			} catch (JsonParseException e) {
