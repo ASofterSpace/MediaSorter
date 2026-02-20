@@ -81,6 +81,8 @@ window.data = {
 
 };
 
+window.pagesWithExtendedURIs = [[PAGES_WITH_EXT_URIS]];
+
 // transforms https://www.foo.org/bar?foo=bar
 // info foo.org/bar
 window.normalizeURI = function(uri) {
@@ -94,7 +96,19 @@ window.normalizeURI = function(uri) {
 	if (uri.indexOf("www.") == 0) {
 		uri = uri.substring(4);
 	}
+	// transforms old youtube.com/watch?v=wpx to new youtube.com/?v=wpx syntax
+	if (uri.indexOf("youtube.com/watch") == 0) {
+		uri = "youtube.com/" + uri.substring(17);
+	}
 	var questIndex = uri.indexOf("?");
+	if (questIndex >= 0) {
+		for (var i = 0; i < window.pagesWithExtendedURIs.length; i++) {
+			if (uri.indexOf(window.pagesWithExtendedURIs[i]) >= 0) {
+				questIndex = uri.indexOf("&");
+				break;
+			}
+		}
+	}
 	if (questIndex >= 0) {
 		uri = uri.substring(0, questIndex);
 	}

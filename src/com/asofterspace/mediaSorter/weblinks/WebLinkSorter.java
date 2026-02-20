@@ -12,6 +12,7 @@ import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonFile;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.TextFile;
+import com.asofterspace.toolbox.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,8 @@ public class WebLinkSorter {
 	private final static String KEY_DIRS_WITH_TXT_SOURCE_FILES = "directoriesWithTextSourceFiles";
 	private final static String KEY_DIRS_WITH_STPU_SOURCE_FILES = "directoriesWithStpuSourceFiles";
 
+	private final static String INDEX_HTM = "index.htm";
+
 	private WebLinkDatabase database;
 
 	private ConfigFile config;
@@ -32,6 +35,8 @@ public class WebLinkSorter {
 	private String assBrowserBasePath;
 	private String assWorkbenchBasePath;
 	private String assWorkbenchLocalLogPath;
+
+	private List<String> pagesWithExtendedURIs = new ArrayList<>();
 
 
 	public WebLinkSorter(WebLinkDatabase database) {
@@ -58,6 +63,8 @@ public class WebLinkSorter {
 		assBrowserBasePath = config.getValue(KEY_ASS_BROWSER_BASE_PATH);
 		assWorkbenchBasePath = config.getValue(KEY_ASS_WORKBENCH_BASE_PATH);
 		assWorkbenchLocalLogPath = config.getValue(KEY_ASS_WORKBENCH_LOCAL_LOG_PATH);
+
+		pagesWithExtendedURIs.add("youtube.");
 	}
 
 	public void run() {
@@ -230,6 +237,16 @@ public class WebLinkSorter {
 				if (nextNewLine < 0) {
 					nextNewLine = text.length();
 				}
+				// for some pages, we do NOT want to drop everything after ?:
+				if (nextQuestMark >= 0) {
+					String tempUri = text.substring(index, nextQuestMark);
+					// ... namely, for youtube we don't want to do so:
+					for (String pageWithExtendedURIs : pagesWithExtendedURIs) {
+						if (tempUri.contains(pageWithExtendedURIs)) {
+							nextQuestMark = text.indexOf("&", index);
+						}
+					}
+				}
 				if (nextQuestMark < 0) {
 					nextQuestMark = text.length();
 				}
@@ -277,8 +294,22 @@ public class WebLinkSorter {
 		Directory outputDir = new Directory("output");
 
 		// generate index file - just statically the one from the server dir
-		File indexFile = new File(serverDir, "index.htm");
-		indexFile.copyToDisk(outputDir);
+		TextFile indexFile = new TextFile(serverDir, INDEX_HTM);
+		String content = indexFile.getContent();
+		StringBuilder sbPagesWithExtendedURIs = new StringBuilder();
+		sbPagesWithExtendedURIs.append("[");
+		String sep = "";
+		for (String pageWithExtendedURIs : pagesWithExtendedURIs) {
+			sbPagesWithExtendedURIs.append(sep);
+			sep = ", ";
+			sbPagesWithExtendedURIs.append("\"");
+			sbPagesWithExtendedURIs.append(pageWithExtendedURIs);
+			sbPagesWithExtendedURIs.append("\"");
+		}
+		sbPagesWithExtendedURIs.append("]");
+		content = StrUtils.replaceAll(content, "[[PAGES_WITH_EXT_URIS]]", sbPagesWithExtendedURIs.toString());
+		TextFile outputIndexFile = new TextFile(outputDir, INDEX_HTM);
+		outputIndexFile.saveContent(content);
 
 		// generate data file
 		TextFile dataFile = new TextFile(outputDir, "data.js");

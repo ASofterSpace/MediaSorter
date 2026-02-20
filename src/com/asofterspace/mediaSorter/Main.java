@@ -15,8 +15,8 @@ import com.asofterspace.toolbox.Utils;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.2.2(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 18. December 2025";
+	public final static String VERSION_NUMBER = "0.0.2.3(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 20. February 2026";
 
 
 	public static void main(String[] args) {
