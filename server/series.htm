@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Series</title>
+	<style>
+		body {
+			background: linear-gradient(-44deg, #160022, #202, #11001A, #202, #201, #202, #222, #202, #11001A, #201, #202, #112, #101, #11001A, #202, #160022, #212, #11001A, #101, #11001A, #202);
+			color: rgb(136, 170, 255);
+			min-height: 1024px;
+		}
+		h2 {
+			font-size: 120%;
+		}
+		input {
+			color: rgb(136, 170, 255);
+			background: #202;
+			border: 1px #55F solid;
+			border-radius: 5pt;
+		}
+		button {
+			color: rgb(146, 190, 255);
+			background: #225;
+			border: 1px #55F solid;
+			border-radius: 5pt;
+			cursor: pointer;
+			margin-top: 1pt;
+		}
+		button:hover {
+			background: #337;
+		}
+		a {
+			color: rgb(136, 170, 255);
+			text-decoration: none;
+		}
+		a:visited {
+			color: rgb(170, 136, 255);
+			text-decoration: none;
+		}
+		a:hover {
+			color: rgb(156, 208, 255);
+			text-decoration: underline;
+		}
+		div#searchBar > input {
+			width: 80%;
+			display: inline;
+		}
+		div#searchBar > button {
+			width: 15%;
+			display: inline;
+			float: right;
+		}
+		div#statusBar {
+			font-size: 10pt;
+			font-style: italic;
+			color: #0D0;
+			font-family: "Courier New";
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>Series</h1>
+
+	[[SERIES_CONTENT]]
+
+	<div style="padding-top: 20pt;" id="statusBar">
+		Last Update: [[UPDATE_DATETIMESTAMP]]
+	</div>
+
+	<script>
+		window.toggle = function(id) {
+			var container = document.getElementById("cont" + id);
+			if (container) {
+				if (container.style.display == "none") {
+					container.style.display = "block";
+				} else {
+					container.style.display = "none";
+				}
+			}
+		}
+	</script>
+
+</body>
+</html>

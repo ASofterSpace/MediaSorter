@@ -28,6 +28,9 @@ public class WebLinkSorter {
 
 	private final static String INDEX_HTM = "index.htm";
 
+	private Directory serverDir;
+	private Directory outputDir;
+
 	private WebLinkDatabase database;
 
 	private ConfigFile config;
@@ -39,8 +42,10 @@ public class WebLinkSorter {
 	private List<String> pagesWithExtendedURIs = new ArrayList<>();
 
 
-	public WebLinkSorter(WebLinkDatabase database) {
+	public WebLinkSorter(WebLinkDatabase database, Directory serverDir, Directory outputDir) {
 		this.database = database;
+		this.serverDir = serverDir;
+		this.outputDir = outputDir;
 		this.config = null;
 
 		try {
@@ -289,9 +294,6 @@ public class WebLinkSorter {
 	}
 
 	private void writeLinksToOutputFile(List<WebLink> links) {
-
-		Directory serverDir = new Directory("server");
-		Directory outputDir = new Directory("output");
 
 		// generate index file - just statically the one from the server dir
 		TextFile indexFile = new TextFile(serverDir, INDEX_HTM);

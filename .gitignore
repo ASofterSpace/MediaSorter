@@ -37,3 +37,7 @@ config
 *.stp
 *.stpu
 output
+
+# upload scripts
+upload.sh
+upload_file.sh

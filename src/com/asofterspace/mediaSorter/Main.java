@@ -6,6 +6,7 @@ package com.asofterspace.mediaSorter;
 
 import com.asofterspace.mediaSorter.movies.MovieDatabase;
 import com.asofterspace.mediaSorter.movies.MovieSorter;
+import com.asofterspace.mediaSorter.series.SeriesSorter;
 import com.asofterspace.mediaSorter.weblinks.WebLinkDatabase;
 import com.asofterspace.mediaSorter.weblinks.WebLinkSorter;
 import com.asofterspace.toolbox.io.Directory;
@@ -27,6 +28,7 @@ public class Main {
 		Utils.setVersionDate(VERSION_DATE);
 
 		boolean sortMovies = true;
+		boolean sortSeries = true;
 		boolean sortWeblinks = true;
 
 		if (args.length > 0) {
@@ -43,25 +45,38 @@ public class Main {
 			for (String arg : args) {
 				if (arg.equals("--movies-only")) {
 					sortWeblinks = false;
+					sortSeries = false;
+				}
+				if (arg.equals("--series-only")) {
+					sortWeblinks = false;
+					sortMovies = false;
 				}
 				if (arg.equals("--weblinks-only")) {
 					sortMovies = false;
+					sortSeries = false;
 				}
 			}
 		}
 
 		Directory confDir = new Directory("config");
+		Directory serverDir = new Directory("server");
+		Directory outputDir = new Directory("output");
 
 		if (sortMovies) {
 			MovieDatabase database = new MovieDatabase(confDir);
-			MovieSorter movieSorter = new MovieSorter(database);
-			movieSorter.run();
+			MovieSorter sorter = new MovieSorter(database);
+			sorter.run();
+		}
+
+		if (sortSeries) {
+			SeriesSorter sorter = new SeriesSorter(serverDir, outputDir);
+			sorter.run();
 		}
 
 		if (sortWeblinks) {
 			WebLinkDatabase database = new WebLinkDatabase(confDir);
-			WebLinkSorter webLinkSorter = new WebLinkSorter(database);
-			webLinkSorter.run();
+			WebLinkSorter sorter = new WebLinkSorter(database, serverDir, outputDir);
+			sorter.run();
 		}
 	}
 
