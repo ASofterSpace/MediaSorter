@@ -40,6 +40,7 @@ public class Series {
 
 		idCounter++;
 		String indentStr = " style='padding-left:" + (15*(depth-2)) + "pt;";
+		boolean isEmpty = true;
 
 		html.append("<h" + depth + indentStr + "cursor:pointer;' onclick='toggle(" + idCounter + ")'>");
 		html.append(HTML.escapeHTMLstr(name));
@@ -67,27 +68,62 @@ public class Series {
 
 		for (String subDirName : subDirNames) {
 			nameToSubSeries.get(subDirName).appendHTML(html, depth + 1);
+			isEmpty = false;
 		}
 
 		List<String> curFileNames = new ArrayList<>();
+		List<String> curSubNames = new ArrayList<>();
 
 		for (Directory dir : entrypoints) {
 			boolean recursively = false;
 			List<File> curFiles = dir.getAllFiles(recursively);
 			for (File curFile : curFiles) {
 				String filename = curFile.getLocalFilename();
-				if ((!filename.endsWith(".txt") && !filename.endsWith(".stpu") && !filename.endsWith(".jpg")) &&
-					(!curFileNames.contains(filename))) {
-					curFileNames.add(filename);
+				String justname = filename;
+				int dotIndex = filename.lastIndexOf(".");
+				if (dotIndex >= 0) {
+					justname = filename.substring(0, dotIndex);
+				}
+				if (filename.endsWith(".srt") || filename.endsWith(".sub")) {
+					curSubNames.add(justname);
+				} else {
+					if ((!filename.endsWith(".txt") && !filename.endsWith(".stpu") && !filename.endsWith(".jpg")) &&
+						(!curFileNames.contains(filename))) {
+						curFileNames.add(justname);
+					}
 				}
 			}
 		}
 
 		curFileNames = SortUtils.sort(curFileNames);
+		curSubNames = SortUtils.sort(curSubNames);
+
+		depth++;
+		indentStr = " style='padding-left:" + (15*(depth-2)) + "pt;";
 
 		for (String curFileName : curFileNames) {
 			html.append("<div" + indentStr + "'>");
 			html.append(HTML.escapeHTMLstr(curFileName));
+			html.append("</div>");
+			isEmpty = false;
+		}
+
+		if (curSubNames.size() > 0) {
+			html.append("<div>&nbsp;</div>");
+			html.append("<div" + indentStr + "'>");
+			html.append("<i>Subtitles:</i>");
+			html.append("</div>");
+			for (String curSubName : curSubNames) {
+				html.append("<div" + indentStr + "'>");
+				html.append(HTML.escapeHTMLstr(curSubName));
+				html.append("</div>");
+				isEmpty = false;
+			}
+		}
+
+		if (isEmpty) {
+			html.append("<div" + indentStr + "'>");
+			html.append("<i>(Mysteriously and ominously, this folder is empty.)</i>");
 			html.append("</div>");
 		}
 
