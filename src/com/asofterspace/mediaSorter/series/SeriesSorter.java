@@ -4,6 +4,7 @@
  */
 package com.asofterspace.mediaSorter.series;
 
+import com.asofterspace.mediaSorter.movies.MovieSorter;
 import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
@@ -52,7 +53,14 @@ public class SeriesSorter {
 
 	public void run() {
 
-		System.out.println("Starting series sorting...");
+		runUploadFile();
+
+		System.out.println("Series sorting done!");
+	}
+
+	private void runUploadFile() {
+
+		System.out.println("Starting series sorting for upload...");
 
 		// load media files
 		Map<String, Series> nameToSeries = new HashMap<>();
@@ -81,20 +89,24 @@ public class SeriesSorter {
 			nameToSeries.get(name).appendHTML(seriesHTML, 2);
 		}
 
-		TextFile seriesBaseFile = new TextFile(serverDir, SERIES_HTM);
+		TextFile seriesBaseFile = new TextFile(serverDir, MovieSorter.MOVIES_AND_SERIES_HTM);
 		String html = seriesBaseFile.getContent();
+
+		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Series");
+
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", "href='movies.htm'>:: click for [movies]");
 
 		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
 
-		html = StrUtils.replaceAll(html, "[[SERIES_CONTENT]]", seriesHTML.toString());
+		html = StrUtils.replaceAll(html, "[[CONTENT]]", seriesHTML.toString());
 
 		TextFile seriesOutFile = new TextFile(outputDir, SERIES_HTM);
 		seriesOutFile.saveContent(html);
 
 		boolean doUpload = config.getBoolean("upload");
 		if (doUpload) {
-			System.out.println("Uploading...");
-			File uploadFile = new File("upload.sh");
+			System.out.println("Uploading series...");
+			File uploadFile = new File("upload_series.sh");
 			IoUtils.execute(uploadFile.getCanonicalFilename());
 			System.out.println("Upload done!");
 		}

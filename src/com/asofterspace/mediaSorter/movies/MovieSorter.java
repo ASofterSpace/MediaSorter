@@ -8,9 +8,12 @@ import com.asofterspace.toolbox.configuration.ConfigFile;
 import com.asofterspace.toolbox.io.Directory;
 import com.asofterspace.toolbox.io.File;
 import com.asofterspace.toolbox.io.HTML;
+import com.asofterspace.toolbox.io.IoUtils;
 import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.SimpleFile;
+import com.asofterspace.toolbox.io.TextFile;
+import com.asofterspace.toolbox.utils.DateUtils;
 import com.asofterspace.toolbox.utils.Record;
 import com.asofterspace.toolbox.utils.StrUtils;
 
@@ -36,10 +39,15 @@ public class MovieSorter {
 	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
 	public final static String OVERVIEW_BY_ADDITION = "overviewByAddition";
 	public final static String OVERVIEW_FILM = "overviewForFilm";
+	public final static String MOVIES_AND_SERIES_HTM = "moviesAndSeries.htm";
+	public final static String MOVIES_HTM = "movies.htm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
 	private final static String PASSES_BECHDEL_STR = "Passes the Bechdel Test:";
+
+	private Directory serverDir;
+	private Directory outputDir;
 
 	private MovieDatabase database;
 
@@ -48,7 +56,9 @@ public class MovieSorter {
 	private List<String> filesFound = new ArrayList<>();
 
 
-	public MovieSorter(MovieDatabase database) {
+	public MovieSorter(MovieDatabase database, Directory serverDir, Directory outputDir) {
+		this.serverDir = serverDir;
+		this.outputDir = outputDir;
 		this.database = database;
 		this.config = null;
 
@@ -561,7 +571,42 @@ public class MovieSorter {
 
 		System.out.println("Performed file encounter checks!");
 
+		runUploadFile(films);
+
 		System.out.println("Movie sorting done!");
+	}
+
+	private void runUploadFile(List<Film> films) {
+
+		System.out.println("Starting movie sorting for upload...");
+
+		StringBuilder moviesHTML = new StringBuilder();
+
+		for (Film film : films) {
+			film.appendHTML(moviesHTML);
+		}
+
+		TextFile moviesBaseFile = new TextFile(serverDir, MovieSorter.MOVIES_AND_SERIES_HTM);
+		String html = moviesBaseFile.getContent();
+
+		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Movies");
+
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", "href='series.htm'>:: click for [series]");
+
+		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
+
+		html = StrUtils.replaceAll(html, "[[CONTENT]]", moviesHTML.toString());
+
+		TextFile moviesOutFile = new TextFile(outputDir, MOVIES_HTM);
+		moviesOutFile.saveContent(html);
+
+		boolean doUpload = config.getBoolean("upload");
+		if (doUpload) {
+			System.out.println("Uploading movies...");
+			File uploadFile = new File("upload_movies.sh");
+			IoUtils.execute(uploadFile.getCanonicalFilename());
+			System.out.println("Upload done!");
+		}
 	}
 
 	private Integer getAmazingness(String str) {

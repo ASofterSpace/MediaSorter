@@ -530,6 +530,46 @@ public class Film {
 		overview.append("</div>");
 	}
 
+	public void appendHTML(StringBuilder html) {
+
+		html.append("<h2 style='cursor:pointer;' onclick='toggle(" + number + ")'>");
+		html.append(HTML.escapeHTMLstr(title));
+		html.append("</h2>");
+
+		html.append("<div id='cont" + number + "' style='padding-left:15pt; display: none;'>");
+
+		if (amazingness == null) {
+			html.append("<p>Amazingness: (not yet rated)</p>");
+		} else {
+			html.append("<p>Amazingness: " + amazingness + " / 10</p>");
+		}
+		if (review != null) {
+			html.append("<p>Review: " + HTML.escapeHTMLstr(review) + "</p>");
+		}
+		if (triggerWarning != null) {
+			html.append("<p>Content Note: " + HTML.escapeHTMLstr(triggerWarning) + "</p>");
+		}
+		html.append("<p>Bechdel Test: " + getBechdelText() + "</p>");
+		html.append("<p>Year: " + year + "</p>");
+		html.append("<p>Genres: ");
+		String sep = "";
+		for (String genre : genres) {
+			html.append(sep);
+			sep = " / ";
+			html.append(HTML.escapeHTMLstr(genre));
+		}
+		html.append("</p>");
+		if ((relatedMovies != null) && (relatedMovies.size() > 0)) {
+			html.append("<p>Related Movies:</p>");
+			for (Film relatedMovie : relatedMovies) {
+				html.append("<p style='padding-left:15pt;'>");
+				html.append(HTML.escapeHTMLstr(relatedMovie.getTitle()));
+				html.append("</p>");
+			}
+		}
+		html.append("</div>");
+	}
+
 	@Override
 	public String toString() {
 		return "Film [title: " + this.title + ", filename: " + this.filename + "]";
