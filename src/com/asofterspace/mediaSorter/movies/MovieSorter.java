@@ -665,11 +665,13 @@ public class MovieSorter {
 		overview.append("	width: 200pt;");
 		overview.append("	height: 300pt;");
 		overview.append("	object-fit: cover;");
+		overview.append("	mask-image: linear-gradient(to right, white 0%, white 98%, transparent 100%), linear-gradient(to left, white 0%, white 98%, transparent 100%), linear-gradient(to top, white 0%, white 98%, transparent 100%), linear-gradient(to bottom, white 0%, white 98%, transparent 100%);");
+		overview.append("	mask-composite: intersect;");
 		overview.append("}");
 		overview.append("img.bigpic {");
 		overview.append("	width: 300pt;");
 		overview.append("	height: unset;");
-		overview.append("	padding-right: 10pt;");
+		overview.append("	margin-right: 10pt;");
 		overview.append("}");
 		overview.append("div.bracketTitle {");
 		overview.append("	text-align: center;");
@@ -689,8 +691,9 @@ public class MovieSorter {
 		overview.append("}");
 		String imgFrameCol = "#202";
 		overview.append("div.imgsurrounder {");
-		overview.append("	box-shadow: inset 0px 0px 5px 5px " + imgFrameCol + ";");
-		overview.append("	height: 300pt;position: absolute;left: 0;top: 0;width: 200pt;");
+		// no longer necessary as we are now using mask-image on the img itself:
+		// overview.append("	box-shadow: inset 0px 0px 5px 5px " + imgFrameCol + ";");
+		overview.append("	height: 300pt; position: absolute; left: 0; top: 0; width: 200pt;");
 		overview.append("}");
 		overview.append("div.filminfo {");
 		overview.append("	font-size: 200%;");

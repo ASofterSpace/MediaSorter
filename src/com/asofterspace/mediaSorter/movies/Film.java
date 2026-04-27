@@ -326,8 +326,11 @@ public class Film {
 				this.bechdel = true;
 				return;
 			}
+			System.err.println("BechdelStr is not in [\"yes\", \"no\", \"unkown\"] in movie " +
+				title + ": \"" + bechdelStr + "\"");
+			return;
 		}
-		System.err.println("BechdelStr could not be interpreted in movie " + title + ": \"" + bechdelStr + "\"");
+		System.err.println("BechdelStr is null in movie " + title + ": \"" + bechdelStr + "\"");
 	}
 
 	public String getBechdelText() {
@@ -362,19 +365,23 @@ public class Film {
 				for (Map.Entry<String, String> entry : bechdelTimes.entrySet()) {
 					result.append(" Starting at " + entry.getKey() + ", ");
 					String value = entry.getValue();
+					final String BS_NOT_NAMED = "not a named character";
+					final String BS_LESS_THAN_MIN = "less than a minute";
+					final String BS_ABOUT_MAN = "talking about a man";
 					switch (value) {
-						case "not a named character":
+						case BS_NOT_NAMED:
 							result.append("women are talking but they are not all named characters.");
 							break;
-						case "less than a minute":
+						case BS_LESS_THAN_MIN:
 							result.append("women are talking but for less than a minute.");
 							break;
-						case "talking about a man":
+						case BS_ABOUT_MAN:
 							result.append("women are talking but the topic of their conversation is a man.");
 							break;
 						default:
 							result.append("women are talking but it does not count.");
-							System.err.println("BechdelStr value '" + value + "' could not be interpreted in movie " + title + "!");
+							System.err.println("BechdelStr value '" + value + "' is not a known one in movie " + title +
+								"! (Known are: " + BS_NOT_NAMED + ", " + BS_LESS_THAN_MIN + ", " + BS_ABOUT_MAN + ")");
 							break;
 					}
 				}
