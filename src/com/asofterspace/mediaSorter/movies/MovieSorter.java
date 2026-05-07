@@ -448,6 +448,7 @@ public class MovieSorter {
 			genreSanitized = StrUtils.replaceAll(genreSanitized, " ", "");
 			genreSanitized = StrUtils.replaceAll(genreSanitized, "*", "");
 			genreSanitized = StrUtils.replaceAll(genreSanitized, "&", "");
+			genreSanitized = StrUtils.replaceAll(genreSanitized, ",", "");
 			genreToKeyMap.put(genre, genreSanitized);
 			List<Film> filmsOfThisGenre = genreMap.get(genre);
 			filmBrackets = new HashMap<>();
