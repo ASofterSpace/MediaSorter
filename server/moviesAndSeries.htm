@@ -56,6 +56,12 @@
 			color: #0D0;
 			font-family: "Courier New";
 		}
+		div.tri {
+			display: inline-block;
+		}
+		div.tri_open {
+			transform: rotate(90deg);
+		}
 	</style>
 </head>
 
@@ -73,11 +79,18 @@
 	<script>
 		window.toggle = function(id) {
 			var container = document.getElementById("cont" + id);
+			var tri = document.getElementById("tri" + id);
 			if (container) {
 				if (container.style.display == "none") {
 					container.style.display = "block";
+					if (tri) {
+						tri.className = "tri tri_open";
+					}
 				} else {
 					container.style.display = "none";
+					if (tri) {
+						tri.className = "tri";
+					}
 				}
 			}
 		}

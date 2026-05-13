@@ -86,7 +86,7 @@ public class SeriesSorter {
 		StringBuilder seriesHTML = new StringBuilder();
 
 		for (String name : seriesNamesSorted) {
-			nameToSeries.get(name).appendHTML(seriesHTML, 2);
+			nameToSeries.get(name).appendAsHtmlToUploadPage(seriesHTML, 2);
 		}
 
 		TextFile seriesBaseFile = new TextFile(serverDir, MovieSorter.MOVIES_AND_SERIES_HTM);

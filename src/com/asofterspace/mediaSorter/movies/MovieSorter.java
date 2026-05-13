@@ -584,7 +584,7 @@ public class MovieSorter {
 		StringBuilder moviesHTML = new StringBuilder();
 
 		for (Film film : films) {
-			film.appendHTML(moviesHTML);
+			film.appendAsHtmlToUploadPage(moviesHTML);
 		}
 
 		TextFile moviesBaseFile = new TextFile(serverDir, MovieSorter.MOVIES_AND_SERIES_HTM);

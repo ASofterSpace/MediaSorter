@@ -36,7 +36,7 @@ public class Series {
 		this.entrypoints.add(entrypoint);
 	}
 
-	public void appendHTML(StringBuilder html, int depth) {
+	public void appendAsHtmlToUploadPage(StringBuilder html, int depth) {
 
 		idCounter++;
 		String indentStr = " style='padding-left:" + (15*(depth-2)) + "pt;";
@@ -44,6 +44,7 @@ public class Series {
 
 		html.append("<h" + depth + indentStr + "cursor:pointer;' onclick='toggle(" + idCounter + ")'>");
 		html.append(HTML.escapeHTMLstr(name));
+		html.append(" <div id='tri" + idCounter + "' class='tri'>&gt;</div>");
 		html.append("</h" + depth + ">");
 
 		html.append("<div id='cont" + idCounter + "' style='display: none;'>");
@@ -67,7 +68,7 @@ public class Series {
 		List<String> subDirNames = SortUtils.sort(nameToSubSeries.keySet());
 
 		for (String subDirName : subDirNames) {
-			nameToSubSeries.get(subDirName).appendHTML(html, depth + 1);
+			nameToSubSeries.get(subDirName).appendAsHtmlToUploadPage(html, depth + 1);
 			isEmpty = false;
 		}
 

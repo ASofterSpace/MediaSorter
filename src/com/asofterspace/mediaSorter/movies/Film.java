@@ -537,10 +537,13 @@ public class Film {
 		overview.append("</div>");
 	}
 
-	public void appendHTML(StringBuilder html) {
+	public void appendAsHtmlToUploadPage(StringBuilder html) {
 
 		html.append("<h2 style='cursor:pointer;' onclick='toggle(" + number + ")'>");
 		html.append(HTML.escapeHTMLstr(title));
+		html.append(" (");
+		html.append(year);
+		html.append(") <div id='tri" + number + "' class='tri'>&gt;</div>");
 		html.append("</h2>");
 
 		html.append("<div id='cont" + number + "' style='padding-left:15pt; display: none;'>");
@@ -558,6 +561,20 @@ public class Film {
 		}
 		html.append("<p>Bechdel Test: " + getBechdelText() + "</p>");
 		html.append("<p>Year: " + year + "</p>");
+
+		html.append("<p>Language: ");
+		if (filmLocations.size() == 1) {
+			html.append(HTML.escapeHTMLstr(filmLocations.get(0).getLanguageText()));
+		} else {
+			String locSep = "";
+			for (int i = 0; i < filmLocations.size(); i++) {
+				html.append(locSep);
+				locSep = ", ";
+				html.append("file " + (i+1) + ": " + HTML.escapeHTMLstr(filmLocations.get(i).getLanguageText()));
+			}
+		}
+		html.append("</p>");
+
 		html.append("<p>Genres: ");
 		String sep = "";
 		for (String genre : genres) {
