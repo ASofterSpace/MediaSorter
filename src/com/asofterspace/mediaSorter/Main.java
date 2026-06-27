@@ -4,6 +4,7 @@
  */
 package com.asofterspace.mediaSorter;
 
+import com.asofterspace.mediaSorter.audiobooks.AudiobookSorter;
 import com.asofterspace.mediaSorter.movies.MovieDatabase;
 import com.asofterspace.mediaSorter.movies.MovieSorter;
 import com.asofterspace.mediaSorter.series.SeriesSorter;
@@ -16,8 +17,8 @@ import com.asofterspace.toolbox.Utils;
 public class Main {
 
 	public final static String PROGRAM_TITLE = "Media Sorter";
-	public final static String VERSION_NUMBER = "0.0.2.7(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
-	public final static String VERSION_DATE = "31. August 2019 - 12. May 2026";
+	public final static String VERSION_NUMBER = "0.0.2.8(" + Utils.TOOLBOX_VERSION_NUMBER + ")";
+	public final static String VERSION_DATE = "31. August 2019 - 27. June 2026";
 
 
 	public static void main(String[] args) {
@@ -29,6 +30,7 @@ public class Main {
 
 		boolean sortMovies = true;
 		boolean sortSeries = true;
+		boolean sortAudiobooks = true;
 		boolean sortWeblinks = true;
 
 		if (args.length > 0) {
@@ -46,14 +48,22 @@ public class Main {
 				if (arg.equals("--movies-only")) {
 					sortWeblinks = false;
 					sortSeries = false;
+					sortAudiobooks = false;
 				}
 				if (arg.equals("--series-only")) {
 					sortWeblinks = false;
 					sortMovies = false;
+					sortAudiobooks = false;
+				}
+				if (arg.equals("--audiobooks-only")) {
+					sortWeblinks = false;
+					sortMovies = false;
+					sortSeries = false;
 				}
 				if (arg.equals("--weblinks-only")) {
 					sortMovies = false;
 					sortSeries = false;
+					sortAudiobooks = false;
 				}
 			}
 		}
@@ -70,6 +80,11 @@ public class Main {
 
 		if (sortSeries) {
 			SeriesSorter sorter = new SeriesSorter(serverDir, outputDir);
+			sorter.run();
+		}
+
+		if (sortAudiobooks) {
+			AudiobookSorter sorter = new AudiobookSorter(serverDir, outputDir);
 			sorter.run();
 		}
 

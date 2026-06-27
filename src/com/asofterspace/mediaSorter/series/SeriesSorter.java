@@ -94,7 +94,7 @@ public class SeriesSorter {
 
 		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Series");
 
-		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", "href='movies.htm'>:: click for [movies]");
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", MovieSorter.getSeeAlsoHTML(true, false, true));
 
 		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
 

@@ -39,7 +39,7 @@ public class MovieSorter {
 	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
 	public final static String OVERVIEW_BY_ADDITION = "overviewByAddition";
 	public final static String OVERVIEW_FILM = "overviewForFilm";
-	public final static String MOVIES_AND_SERIES_HTM = "moviesAndSeries.htm";
+	public final static String MOVIES_AND_SERIES_HTM = "inventory.htm";
 	public final static String MOVIES_HTM = "movies.htm";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
@@ -592,7 +592,7 @@ public class MovieSorter {
 
 		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Movies");
 
-		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", "href='series.htm'>:: click for [series]");
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", getSeeAlsoHTML(false, true, true));
 
 		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
 
@@ -608,6 +608,33 @@ public class MovieSorter {
 			IoUtils.execute(uploadFile.getCanonicalFilename());
 			System.out.println("Upload done!");
 		}
+	}
+
+	public static String getSeeAlsoHTML(boolean includeMovies, boolean includeSeries, boolean includeAudiobooks) {
+
+		StringBuilder result = new StringBuilder();
+		int top = 5;
+
+		if (includeMovies) {
+			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
+			top += 20;
+			result.append("href='movies.htm'>:: click for [movies]");
+			result.append("</a>");
+		}
+		if (includeSeries) {
+			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
+			top += 20;
+			result.append("href='series.htm'>:: click for [series]");
+			result.append("</a>");
+		}
+		if (includeAudiobooks) {
+			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
+			top += 20;
+			result.append("href='audiobooks.htm'>:: click for [audiobooks]");
+			result.append("</a>");
+		}
+
+		return result.toString();
 	}
 
 	private Integer getAmazingness(String str) {
