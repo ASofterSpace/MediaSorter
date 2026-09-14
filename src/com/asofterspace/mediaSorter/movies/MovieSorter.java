@@ -41,6 +41,7 @@ public class MovieSorter {
 	public final static String OVERVIEW_FILM = "overviewForFilm";
 	public final static String MOVIES_AND_SERIES_HTM = "inventory.htm";
 	public final static String MOVIES_HTM = "movies.htm";
+	public final static String SKIP_FILE_NAME = "skipThisDirectoryInMediaSorter.txt";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
@@ -592,7 +593,7 @@ public class MovieSorter {
 
 		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Movies");
 
-		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", getSeeAlsoHTML(false, true, true));
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", getSeeAlsoHTML(false, true, true, true, true));
 
 		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
 
@@ -610,7 +611,8 @@ public class MovieSorter {
 		}
 	}
 
-	public static String getSeeAlsoHTML(boolean includeMovies, boolean includeSeries, boolean includeAudiobooks) {
+	public static String getSeeAlsoHTML(boolean includeMovies, boolean includeSeries, boolean includeAudiobooks,
+		boolean includeBooks, boolean includeComics) {
 
 		StringBuilder result = new StringBuilder();
 		int top = 5;
@@ -631,6 +633,18 @@ public class MovieSorter {
 			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
 			top += 20;
 			result.append("href='audiobooks.htm'>:: click for [audiobooks]");
+			result.append("</a>");
+		}
+		if (includeBooks) {
+			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
+			top += 20;
+			result.append("href='books.htm'>:: click for [books]");
+			result.append("</a>");
+		}
+		if (includeComics) {
+			result.append("<a style='position: absolute; top: " + top + "pt; right: 15pt;'");
+			top += 20;
+			result.append("href='comics.htm'>:: click for [comics]");
 			result.append("</a>");
 		}
 

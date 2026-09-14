@@ -94,7 +94,7 @@ public class AudiobookSorter {
 
 		html = StrUtils.replaceAll(html, "[[HEADLINE]]", "Audiobooks");
 
-		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", MovieSorter.getSeeAlsoHTML(true, true, false));
+		html = StrUtils.replaceAll(html, "[[SEE_ALSO_A]]", MovieSorter.getSeeAlsoHTML(true, true, false, true, true));
 
 		html = StrUtils.replaceAll(html, "[[UPDATE_DATETIMESTAMP]]", DateUtils.serializeDateTime(DateUtils.now()));
 

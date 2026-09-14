@@ -12,6 +12,7 @@ import com.asofterspace.toolbox.io.JSON;
 import com.asofterspace.toolbox.io.JsonFile;
 import com.asofterspace.toolbox.io.JsonParseException;
 import com.asofterspace.toolbox.io.TextFile;
+import com.asofterspace.toolbox.utils.DateUtils;
 import com.asofterspace.toolbox.utils.StrUtils;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class WebLinkSorter {
 	private final static String KEY_ASS_WORKBENCH_LOCAL_LOG_PATH = "assWorkbenchLocalLogPath";
 	private final static String KEY_DIRS_WITH_TXT_SOURCE_FILES = "directoriesWithTextSourceFiles";
 	private final static String KEY_DIRS_WITH_STPU_SOURCE_FILES = "directoriesWithStpuSourceFiles";
+	private final static String KEY_DIRS_WITH_WEBPAGE_BACKUPS = "directoriesWithWebpageBackups";
 
 	private final static String INDEX_HTM = "index.htm";
 
@@ -56,7 +58,8 @@ public class WebLinkSorter {
 			if (config.getAllContents().isEmpty()) {
 				config.setAllContents(new JSON(
 					"{\"" + KEY_DIRS_WITH_TXT_SOURCE_FILES + "\":[]," +
-					"\"" + KEY_DIRS_WITH_STPU_SOURCE_FILES + "\\:[]}"
+					"\"" + KEY_DIRS_WITH_STPU_SOURCE_FILES + "\\:[]," +
+					"\"" + KEY_DIRS_WITH_WEBPAGE_BACKUPS + "\\:[]}"
 				));
 			}
 		} catch (JsonParseException e) {
@@ -85,6 +88,9 @@ public class WebLinkSorter {
 
 		// add links from Desktop (search .stpu files in there)
 		links.addAll(getLinksFromDirectoriesWithStpuSourceFiles());
+
+		// add links from local backups of entire web pages
+		links.addAll(getLinksFromDirectoriesWithWebpageBackups());
 
 		// add links from Workbench (search .json files in there)
 		links.addAll(getLinksWorkbenchSourceFiles());
@@ -161,6 +167,42 @@ public class WebLinkSorter {
 						UrlEncoder.encodePath(textFile.getParentDirectory().getDirname()) +
 						"&file=" + UrlEncoder.encodePath(localFileName);
 					result.addAll(getLinksFromText(content, localLocation));
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private List<WebLink> getLinksFromDirectoriesWithWebpageBackups() {
+
+		List<WebLink> result = new ArrayList<>();
+		List<String> dirPaths = config.getList(KEY_DIRS_WITH_WEBPAGE_BACKUPS);
+
+		for (String dirPath : dirPaths) {
+			System.out.println("Checking directory " + dirPath + " for web page backups...");
+			Directory curDir = new Directory(dirPath);
+			boolean recursively = false;
+			boolean followSymbolicLinks = false;
+			List<Directory> webPageDirs = curDir.getAllDirectories(recursively, followSymbolicLinks);
+			for (Directory webPageDir : webPageDirs) {
+				String localDirName = webPageDir.getLocalDirname();
+				// System.out.println("Considering " + localDirName + "...");
+				if (localDirName.contains(".")) {
+					String url = localDirName;
+					int minusPos = url.indexOf("-");
+					while ((minusPos >= 0) && (minusPos + 10 <= url.length())) {
+						// System.out.println("Checking for date: " + url.substring(minusPos + 1, minusPos + 11));
+						if (DateUtils.looksLikeADate(url.substring(minusPos + 1, minusPos + 11))) {
+							url = url.substring(0, minusPos);
+							break;
+						}
+						minusPos = url.indexOf("-", minusPos + 1);
+					}
+					// System.out.println("Archiving as URL: " + url);
+					WebLink cur = new WebLink(url);
+					cur.addSource(curDir.getCanonicalDirname());
+					result.add(cur);
 				}
 			}
 		}
