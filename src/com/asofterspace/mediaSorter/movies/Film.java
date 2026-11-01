@@ -460,6 +460,9 @@ public class Film {
 					case "Spanish":
 						result += "ES";
 						break;
+					case "Swedish":
+						result += "SE";
+						break;
 					case "Icelandic":
 						result += "IS";
 						break;
@@ -625,7 +628,7 @@ public class Film {
 			sep = "";
 			for (String human : humans) {
 				html.append(sep);
-				sep = " / ";
+				sep = ", ";
 				html.append(HTML.escapeHTMLstr(human));
 			}
 			html.append("</p>");
