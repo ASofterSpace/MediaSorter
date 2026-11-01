@@ -36,6 +36,8 @@ public class Film {
 
 	private List<String> genres;
 
+	private List<String> humans;
+
 	private String previewPic;
 
 	private String review;
@@ -81,6 +83,7 @@ public class Film {
 		this.filename = filename;
 		this.number = number;
 		this.genres = new ArrayList<>();
+		this.humans = new ArrayList<>();
 		this.relatedMovieNames = new ArrayList<>();
 		this.relatedMovies = new ArrayList<>();
 		this.similarlyNamedMovies = new ArrayList<>();
@@ -182,6 +185,39 @@ public class Film {
 
 	public void addGenre(String genre) {
 		this.genres.add(genre);
+	}
+
+	private String toHumanLink(String humanStr, String key, Map<String, String> humanToKeyMap) {
+		return "<a href='" + MovieSorter.OVERVIEW_BY_HUMANS + "_" +
+				humanToKeyMap.get(key) + ".htm'>" + HTML.escapeHTMLstr(humanStr) + "</a>";
+	}
+
+	public String getHumanHTML(Map<String, String> humanToKeyMap) {
+		if ((humans.size() < 1) || (humans.get(0) == null)) {
+			return "";
+		}
+
+		StringBuilder result = new StringBuilder();
+		boolean firstElem = true;
+		for (String human : humans) {
+			if (human != null) {
+				if (firstElem) {
+					firstElem = false;
+				} else {
+					result.append("<br>");
+				}
+				result.append(toHumanLink(human, human, humanToKeyMap));
+			}
+		}
+		return result.toString();
+	}
+
+	public List<String> getHumans() {
+		return humans;
+	}
+
+	public void addHuman(String human) {
+		this.humans.add(human);
 	}
 
 	public String getPreviewPic() {
@@ -575,7 +611,7 @@ public class Film {
 		}
 		html.append("</p>");
 
-		html.append("<p>Genres: ");
+		html.append("<p>" + MovieSorter.CATEGORY_TITLE_GENRES + " ");
 		String sep = "";
 		for (String genre : genres) {
 			html.append(sep);
@@ -583,6 +619,18 @@ public class Film {
 			html.append(HTML.escapeHTMLstr(genre));
 		}
 		html.append("</p>");
+
+		if (humans.size() > 0) {
+			html.append("<p>" + MovieSorter.CATEGORY_TITLE_HUMANS + " ");
+			sep = "";
+			for (String human : humans) {
+				html.append(sep);
+				sep = " / ";
+				html.append(HTML.escapeHTMLstr(human));
+			}
+			html.append("</p>");
+		}
+
 		if ((relatedMovies != null) && (relatedMovies.size() > 0)) {
 			html.append("<p>Related Movies:</p>");
 			for (Film relatedMovie : relatedMovies) {

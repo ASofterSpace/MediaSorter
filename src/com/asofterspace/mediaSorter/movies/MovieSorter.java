@@ -36,14 +36,18 @@ public class MovieSorter {
 	private final static String OVERVIEW_BY_AMAZINGNESS = "overviewByAmazingness";
 	private final static String OVERVIEW_BY_YEAR = "overviewByYear";
 	public final static String OVERVIEW_BY_GENRES = "overviewByGenres";
+	public final static String OVERVIEW_BY_HUMANS = "overviewByHumans";
 	public final static String OVERVIEW_BY_LANGUAGES = "overviewByLanguages";
 	public final static String OVERVIEW_BY_ADDITION = "overviewByAddition";
 	public final static String OVERVIEW_FILM = "overviewForFilm";
 	public final static String MOVIES_AND_SERIES_HTM = "inventory.htm";
 	public final static String MOVIES_HTM = "movies.htm";
 	public final static String SKIP_FILE_NAME = "skipThisDirectoryInMediaSorter.txt";
+	public final static String CATEGORY_TITLE_GENRES = "Genres:";
+	public final static String CATEGORY_TITLE_HUMANS = "Actors / directors / other humans involved:";
 
 	private final static String NO_GENRE_SELECTED = "No Genre Assigned Yet";
+	private final static String NO_HUMAN_SELECTED = "No Human Assigned Yet";
 	private final static String NO_LANGUAGE_SELECTED = "No Language Assigned Yet";
 	private final static String PASSES_BECHDEL_STR = "Passes the Bechdel Test:";
 
@@ -111,6 +115,7 @@ public class MovieSorter {
 		Map<Integer, List<String>> amazingnessFilms = new HashMap<>();
 		Map<String, List<String>> yearlyFilms = new HashMap<>();
 		Map<String, List<String>> genreFilms = new HashMap<>();
+		Map<String, List<String>> humanFilms = new HashMap<>();
 
 		List<Film> films = new ArrayList<>();
 
@@ -272,6 +277,24 @@ public class MovieSorter {
 						}
 					}
 				}
+				if (filmContents.get(j).equals("Actors, Directors, Humans in general:")) {
+					for (int humanLineNum = j + 1; humanLineNum < filmContents.size(); humanLineNum++) {
+						String curHuman = filmContents.get(humanLineNum);
+						if ("".equals(curHuman)) {
+							break;
+						}
+						if ("???".equals(curHuman) || "---".equals(curHuman)) {
+							continue;
+						}
+						List<String> thisHumanFilms = humanFilms.get(curHuman);
+						if (thisHumanFilms == null) {
+							thisHumanFilms = new ArrayList<>();
+							humanFilms.put(curHuman, thisHumanFilms);
+						}
+						thisHumanFilms.add(filmname);
+						curFilm.addHuman(curHuman);
+					}
+				}
 			}
 
 			for (String ending : IMAGE_EXTENSIONS) {
@@ -333,6 +356,23 @@ public class MovieSorter {
 			StringBuilder line = new StringBuilder();
 			stats.add(key + ": " + StrUtils.thingOrThings(amount, "film") + ":");
 			for (String film : thisGenreFilms) {
+				stats.add("  " + film);
+			}
+			stats.add("");
+		}
+		stats.add("");
+		stats.add("Human distribution:");
+		stats.add("");
+		Set<String> humanKeySet = humanFilms.keySet();
+		humanKeySet.remove(null);
+		List<String> humanKeys = new ArrayList<String>(humanKeySet);
+		Collections.sort(humanKeys);
+		for (Object key : humanKeys) {
+			List<String> thisHumanFilms = humanFilms.get(key);
+			int amount = thisHumanFilms.size();
+			StringBuilder line = new StringBuilder();
+			stats.add(key + ": " + StrUtils.thingOrThings(amount, "film") + ":");
+			for (String film : thisHumanFilms) {
 				stats.add("  " + film);
 			}
 			stats.add("");
@@ -440,8 +480,6 @@ public class MovieSorter {
 			genres.add(null);
 		}
 
-		int i = 0;
-
 		Map<String, String> genreToKeyMap = new HashMap<>();
 
 		for (String genre : genres) {
@@ -458,10 +496,57 @@ public class MovieSorter {
 			}
 			filmBrackets.put(genre, filmsOfThisGenre);
 			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_GENRES + "_" + genreSanitized + ".htm");
-			i++;
 		}
 
 		saveOverview(films.size(), genres, filmpath + "/" + OVERVIEW_BY_GENRES + ".htm", "Genre", NO_GENRE_SELECTED, OVERVIEW_BY_GENRES, genreToKeyMap);
+
+
+
+		// create overviews for each human
+		final Map<String, List<Film>> humanMap = new HashMap<>();
+		List<String> humans = new ArrayList<>();
+
+		for (Film film : films) {
+			for (String human : film.getHumans()) {
+				if (!humans.contains(human)) {
+					humans.add(human);
+					humanMap.put(human, new ArrayList<Film>());
+				}
+				humanMap.get(human).add(film);
+			}
+		}
+
+		boolean humansContainedNull = humans.contains(null);
+		humans.remove(null);
+		Collections.sort(humans, new Comparator<String>() {
+			public int compare(String a, String b) {
+				return humanMap.get(b).size() - humanMap.get(a).size();
+			}
+		});
+		// order "no genre selected yet" towards the end
+		if (humansContainedNull) {
+			humans.add(null);
+		}
+
+		Map<String, String> humanToKeyMap = new HashMap<>();
+
+		for (String human : humans) {
+			String humanSanitized = human.trim().toLowerCase();
+			humanSanitized = StrUtils.replaceAll(humanSanitized, " ", "");
+			humanSanitized = StrUtils.replaceAll(humanSanitized, "*", "");
+			humanSanitized = StrUtils.replaceAll(humanSanitized, "&", "");
+			humanSanitized = StrUtils.replaceAll(humanSanitized, ",", "");
+			humanToKeyMap.put(human, humanSanitized);
+			List<Film> filmsOfThisHuman = humanMap.get(human);
+			filmBrackets = new HashMap<>();
+			if (human == null) {
+				human = NO_HUMAN_SELECTED;
+			}
+			filmBrackets.put(human, filmsOfThisHuman);
+			saveFilmsAsOverview(filmBrackets, filmpath + "/" + OVERVIEW_BY_HUMANS + "_" + humanSanitized + ".htm");
+		}
+
+		saveOverview(films.size(), humans, filmpath + "/" + OVERVIEW_BY_HUMANS + ".htm", "Human", NO_HUMAN_SELECTED, OVERVIEW_BY_HUMANS, humanToKeyMap);
 
 
 
@@ -491,7 +576,7 @@ public class MovieSorter {
 			languages.add(null);
 		}
 
-		i = 0;
+		int i = 0;
 
 		Map<String, Integer> langToNumberMap = new HashMap<>();
 
@@ -508,6 +593,7 @@ public class MovieSorter {
 		}
 
 		saveOverview(films.size(), languages, filmpath + "/" + OVERVIEW_BY_LANGUAGES + ".htm", "Language", NO_LANGUAGE_SELECTED, OVERVIEW_BY_LANGUAGES, null);
+
 
 
 		// create overview sorted by date of addition to the database
@@ -540,10 +626,11 @@ public class MovieSorter {
 		System.out.println("Saved overview HTML files!");
 
 		for (Film film : films) {
-			saveFilmFile(film, genreToKeyMap, langToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
+			saveFilmFile(film, genreToKeyMap, humanToKeyMap, langToNumberMap, filmpath, filmpath + "/" + OVERVIEW_FILM + "_" + film.getNumber() + ".htm");
 		}
 
 		System.out.println("Saved individual film files!");
+
 
 
 		// check that all films are really encountered and none are missing from the list that do exist on the disk
@@ -798,6 +885,7 @@ public class MovieSorter {
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_AMAZINGNESS + ".htm'>Amazingness</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_YEAR + ".htm'>Year</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_GENRES + ".htm'>Genre</a>");
+		overview.append("<a class='toplink' href='" + OVERVIEW_BY_HUMANS + ".htm'>People</a>");
 		overview.append("<a class='toplink' href='" + OVERVIEW_BY_LANGUAGES + ".htm'>Language</a>");
 		overview.append("</div>");
 
@@ -903,7 +991,8 @@ public class MovieSorter {
 		overview.append("</div>");
 	}
 
-	private void saveFilmFile(Film film, Map<String, String> genreToKeyMap, Map<String, Integer> langToNumberMap, String filmpath, String filename) {
+	private void saveFilmFile(Film film, Map<String, String> genreToKeyMap, Map<String, String> humanToKeyMap,
+		Map<String, Integer> langToNumberMap, String filmpath, String filename) {
 
 		StringBuilder overview = getHtmlTop(1, false);
 
@@ -946,8 +1035,15 @@ public class MovieSorter {
 		overview.append("</div>");
 
 		overview.append("<div class='filminfo'>");
-		overview.append("Genres: " + film.getGenreHTML(genreToKeyMap));
+		overview.append(MovieSorter.CATEGORY_TITLE_GENRES + " " + film.getGenreHTML(genreToKeyMap));
 		overview.append("</div>");
+
+		String humanHTML = film.getHumanHTML(humanToKeyMap);
+		if (!"".equals(humanHTML)) {
+			overview.append("<div class='filminfo'>");
+			overview.append(MovieSorter.CATEGORY_TITLE_HUMANS + "<br>" + humanHTML);
+			overview.append("</div>");
+		}
 
 		overview.append("<div class='filminfo'>");
 		overview.append(film.getLocationHTML(langToNumberMap));
